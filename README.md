@@ -1,0 +1,1 @@
+# Klasyfikator-chmury-punktow
