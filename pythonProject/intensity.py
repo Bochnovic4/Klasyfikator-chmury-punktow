@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_histogram(values, title, xlabel, ylabel, bins=1000, color='blue', alpha=0.7):
+def plot_histogram(values, title, xlabel, ylabel, bins_number=1000, color='blue', alpha=0.7):
     """
     Plot a histogram of the given values.
 
@@ -16,7 +16,7 @@ def plot_histogram(values, title, xlabel, ylabel, bins=1000, color='blue', alpha
     - color: str, the color of the histogram bars.
     - alpha: float, the alpha transparency for the histogram bars.
     """
-    plt.hist(values, bins=bins, color=color, alpha=alpha)
+    plt.hist(values, bins=bins_number, color=color, alpha=alpha)
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
@@ -54,7 +54,7 @@ normalized_intensities = (intensities - np.min(intensities)) / (np.max(intensiti
 plot_histogram(normalized_intensities, 'Histogram of Normalized Intensities', 'Normalized Intensity', 'Frequency')
 
 # Histogram equalization
-hist, bins = np.histogram(normalized_intensities, bins=256, range=[0, 1], density=True)
+hist, bins = np.histogram(normalized_intensities, bins=256, range=(0, 1), density=True)
 cdf = hist.cumsum()
 cdf_normalized = cdf / cdf[-1]
 
