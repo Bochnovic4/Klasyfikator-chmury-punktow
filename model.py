@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
+import joblib
 
 
 class CloudPointClassifier:
@@ -17,3 +18,9 @@ class CloudPointClassifier:
         self.model = RandomForestClassifier(n_estimators=100, random_state=42)
         self.model.fit(X_train, y_train)
         return self.model
+
+    def save(self, filename):
+        joblib.dump(self.model, filename)
+
+    def load(self, filename):
+        self.model = joblib.load(filename)
