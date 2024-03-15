@@ -13,8 +13,8 @@ class Menu(ctk.CTkTabview):
         self.add('Zapisz')
 
         # widgets
-        WorkFrame(self.tab('Działaj'),parent, las_manager)
-        SaveFrame(self.tab('Zapisz'),parent, las_manager)
+        WorkFrame(self.tab('Działaj'), parent, las_manager)
+        SaveFrame(self.tab('Zapisz'), parent, las_manager)
 
 
 class WorkFrame(ctk.CTkFrame):
@@ -30,3 +30,4 @@ class SaveFrame(ctk.CTkFrame):
         super().__init__(master=parent, fg_color='transparent')
         self.pack(expand=True, fill='both')
         BtnSave(self, las_manager.write_las, parents_parent.file_path)
+        BtnSaveAs(self,las_manager.write_las)
