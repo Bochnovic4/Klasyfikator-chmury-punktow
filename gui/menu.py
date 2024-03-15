@@ -21,7 +21,7 @@ class TempFrame(ctk.CTkFrame):
     def __init__(self, parent, las_manager):
         super().__init__(master=parent, fg_color='transparent')
         self.pack(expand=True, fill='both')
-        BtnVisualize(self, las_manager)
+        BtnVisualize(self, las_manager.visualize)
 
 
 class TempFrame2(ctk.CTkFrame):

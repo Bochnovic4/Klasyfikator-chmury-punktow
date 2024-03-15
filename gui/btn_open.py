@@ -3,7 +3,8 @@ from tkinter import filedialog
 from settings import *
 from las_file_manager import LasFileManager
 
-# wybierz plik
+
+# choose file
 class BtnOpen(ctk.CTkFrame):
 
     def __init__(self, parent, import_func):
@@ -18,7 +19,7 @@ class BtnOpen(ctk.CTkFrame):
         self.import_func(path)
 
 
-# zamknij plik(zmień go bez wychodzenia z aplikacji)
+# close file(without closing application)
 class BtnClose(ctk.CTkButton):
     def __init__(self, parent, close_func):
         super().__init__(master=parent, command=close_func, text='x', text_color=WHITE,
@@ -27,11 +28,20 @@ class BtnClose(ctk.CTkButton):
 
 
 class BtnVisualize(ctk.CTkButton):
-    def __init__(self, parent, las_manager):
+    def __init__(self, parent, func):
         super().__init__(master=parent, command=self.visualize, text='pokaż plik')
-        self.las_manager = las_manager
+        self.func = func
         self.pack(fill='x', pady=4, ipady=8, side='bottom')
 
     def visualize(self):
-        self.las_manager.visualize()
+        self.func()
 
+
+class BtnCreator(ctk.CTkButton):
+    def __init__(self, parent, text, func):
+        super().__init__(master=parent, command=self.func, text=text)
+        self.func = func
+        self.pack(fill='x', pady=4, ipady=8)
+
+    def func(self):
+        self.func()
