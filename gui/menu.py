@@ -9,22 +9,24 @@ class Menu(ctk.CTkTabview):
         self.grid(row=0, column=0, sticky='nsew')
 
         # tabs
-        self.add('temp1')
-        self.add('temp2')
+        self.add('Działaj')
+        self.add('Zapisz')
 
         # widgets
-        TempFrame(self.tab('temp1'), las_manager)
-        TempFrame2(self.tab('temp2'), las_manager)
+        WorkFrame(self.tab('Działaj'),parent, las_manager)
+        SaveFrame(self.tab('Zapisz'),parent, las_manager)
 
 
-class TempFrame(ctk.CTkFrame):
-    def __init__(self, parent, las_manager):
+class WorkFrame(ctk.CTkFrame):
+    def __init__(self, parent, parents_parent, las_manager):
         super().__init__(master=parent, fg_color='transparent')
         self.pack(expand=True, fill='both')
         BtnVisualize(self, las_manager.visualize)
+        BtnCreator(self, "Usuń szum", las_manager.filter_points)
 
 
-class TempFrame2(ctk.CTkFrame):
-    def __init__(self, parent, las_manager):
+class SaveFrame(ctk.CTkFrame):
+    def __init__(self, parent, parents_parent, las_manager):
         super().__init__(master=parent, fg_color='transparent')
         self.pack(expand=True, fill='both')
+        BtnSave(self, las_manager.write_las, parents_parent.file_path)
