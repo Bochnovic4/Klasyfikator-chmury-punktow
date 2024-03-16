@@ -1,9 +1,10 @@
 import threading
-
+import tkinter as tk
 import laspy
 import numpy as np
 import open3d as o3d
 import pandas
+
 
 class LasFileManager:
     def __init__(self, file_path, labels=None):
@@ -66,7 +67,8 @@ class LasFileManager:
         o3d_points = self.covert_to_o3d_data()
 
         # Perform the statistical outlier removal.
-        cl, ind = o3d.geometry.PointCloud.remove_statistical_outlier(o3d_points, nb_neighbors=nb_neighbors, std_ratio=std_ratio)
+        cl, ind = o3d.geometry.PointCloud.remove_statistical_outlier(o3d_points, nb_neighbors=nb_neighbors,
+                                                                     std_ratio=std_ratio)
         # Select the points that remain after filtering.
         o3d_points = o3d_points.select_by_index(ind, invert=invert)
         # Update the class's point, color, and classification data with the filtered results.
@@ -96,17 +98,41 @@ class LasFileManager:
         self.colors = colors.astype(np.uint16)
 
     def file_information(self):
-        print(f"nazwy wymiarów pliku LAS: {list(self.las_file.point_format.dimension_names)}")
-        print(f"nazwy podstawowych wymiarów pliku LAS: {list(self.las_file.point_format.standard_dimension_names)}")
-        print(f"nazwy dodatkowych wymiarów pliku LAS: {list(self.las_file.point_format.extra_dimension_names)}")
-        print(f"Format pliku LAS: {self.las_file.header.version}")
-        print(f"Format punktów: {self.las_file.header.point_format.id}")
-        print(f"Liczba punktów: {len(self.las_file.points)}")
-        print(f"sklasyfikowane punkty: {np.unique(self.las_file.classification)}")
-        print(f"Zakres X: min = {self.las_file.header.x_min}, max = {self.las_file.header.x_max}")
-        print(f"Zakres Y: min = {self.las_file.header.y_min}, max = {self.las_file.header.y_max}")
-        print(f"Zakres Z: min = {self.las_file.header.z_min}, max = {self.las_file.header.z_max}")
-        print(f"Intensywność: min = {np.min(self.las_file.intensity)}, max = {np.max(self.las_file.intensity)}, średnia = {np.mean(self.las_file.intensity)}")
+        dane = {
+            "nazwy wymiarów pliku LAS":
+                str(list(self.las_file.point_format.dimension_names)),
+            "nazwy podstawowych wymiarów pliku LAS":
+                str(list(self.las_file.point_format.standard_dimension_names)),
+            "nazwy dodatkowych wymiarów pliku LAS":
+                str(list(self.las_file.point_format.extra_dimension_names)),
+            "Format pliku LAS":
+                str(self.las_file.header.version),
+            "Format punktów":
+                str(self.las_file.header.version),
+            "Liczba punktów":
+                str(len(self.points)),
+            "sklasyfikowane punkty":
+                str(np.unique(self.las_file.classification)),
+            "min x":
+                str(self.las_file.header.x_min),
+            "max x":
+                str(self.las_file.header.x_max),
+            "min y":
+                str(self.las_file.header.y_min),
+            "max y":
+                str(self.las_file.header.y_max),
+            "min z":
+                str(self.las_file.header.z_min),
+            "max z":
+                str(self.las_file.header.z_max),
+            "min intensywność":
+                str(np.min(self.las_file.intensity)),
+            "max intensywność":
+                str(np.max(self.las_file.intensity)),
+            "średnia intensywność":
+                str(np.mean(self.las_file.intensity)),
+        }
+        return dane
 
     def __str__(self):
         return str(self.las_file)

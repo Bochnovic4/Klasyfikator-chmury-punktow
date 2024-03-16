@@ -1,4 +1,5 @@
 import customtkinter as ctk
+import tkinter as tk
 from tkinter import filedialog
 from settings import *
 from las_file_manager import LasFileManager
@@ -32,7 +33,6 @@ class BtnVisualize(ctk.CTkButton):
         super().__init__(master=parent, command=self.visualize, text='pokaż plik')
         self.disable_func = disable_func
         self.enable_func = enable_func
-        self.parent = parent
         self.func = func
         self.pack(fill='x', pady=4, ipady=8, side='bottom')
 
@@ -42,13 +42,17 @@ class BtnVisualize(ctk.CTkButton):
 
 
 class BtnCreator(ctk.CTkButton):
-    def __init__(self, parent, text, func):
+    def __init__(self, parent, text, func, disable_func, enable_func):
         super().__init__(master=parent, command=self.func, text=text)
+        self.disable_func = disable_func
+        self.enable_func = enable_func
         self.func = func
         self.pack(fill='x', pady=4, ipady=8)
 
     def func(self):
-        self.func()
+        self.disable_func()
+        self.after(1, lambda: self.func())
+        self.after(2, lambda: self.enable_func())
 
 
 class BtnSave(ctk.CTkButton):
@@ -72,3 +76,34 @@ class BtnSaveAs(ctk.CTkButton):
         file_path = filedialog.asksaveasfilename(defaultextension=".las",
                                                  filetypes=[("LAS files", "*.las"), ("All files", "*.*")])
         self.func(file_path)
+
+
+class Frame(ctk.CTkFrame):
+    def __init__(self, parent, dane):
+        super().__init__(master=parent)
+        self.grid(column=1, row=0, sticky='nsew', padx=50, pady=25)
+
+        self.labels = {}  # Słownik do przechowywania referencji do etykiet
+
+        self.bind("<Configure>", self.update_wraplength)  # Bindowanie zdarzenia zmiany rozmiaru okna
+
+        # Tworzenie etykiet na podstawie danych
+        for key, var in dane.items():
+            label = ctk.CTkLabel(self, text=f"{key}: {var}")
+            label.grid(row=len(self.labels), column=0, sticky='w')
+            self.labels[key] = label  # Dodanie etykiety do słownika
+
+    def update_wraplength(self, event=None):
+        # Aktualizacja szerokości zawijania tekstu na podstawie dostępnej szerokości dla etykiety
+        for label in self.labels.values():
+            container_width = self.winfo_width() - self.grid_info()['padx']*2  # Szerokość dostępna dla etykiety
+            wrap_length = int(container_width * 0.9)  # Używamy 90% dostępnej szerokości
+            label.update_idletasks()  # Zaktualizuj widżet
+            label.configure(wraplength=wrap_length)  # Ustaw szerokość zawijania tekstu
+
+    def update_data(self, new_data):
+        # Metoda do aktualizacji danych
+        for key, value in new_data.items():
+            # Sprawdzenie, czy istnieje etykieta dla danego klucza
+            if key in self.labels:
+                self.labels[key].configure(text=f"{key}: {value}")

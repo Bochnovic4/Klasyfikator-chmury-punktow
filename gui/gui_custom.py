@@ -42,6 +42,12 @@ class App(ctk.CTk):
         self.las_manager = LasFileManager(self.file_path)
         self.btn_close = BtnClose(self, self.close_edit)
         self.menu = Menu(self, self.las_manager)
+        self.panel = Frame(self, self.las_manager.file_information())
+
+    def update_frame_data(self):
+        # Metoda do aktualizacji danych w klasie Frame
+        new_data = self.las_manager.file_information()
+        self.panel.update_data(new_data)
 
     def close_edit(self):
         # hide everything
@@ -60,5 +66,7 @@ class App(ctk.CTk):
         self.title('Klasyfikator chmury punktów')
         self.menu.configure(state='normal')
         self.menu.enable()
+        self.update_frame_data()
+
 
 App()
