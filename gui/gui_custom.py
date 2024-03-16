@@ -51,5 +51,14 @@ class App(ctk.CTk):
         # show open button
         self.btn_open = BtnOpen(self, self.choose_file)
 
+    def disable_all(self):
+        self.title('ładowanie')
+        self.menu.configure(state='disabled')
+        self.menu.disable()
+
+    def enable_all(self):
+        self.title('Klasyfikator chmury punktów')
+        self.menu.configure(state='normal')
+        self.menu.enable()
 
 App()
