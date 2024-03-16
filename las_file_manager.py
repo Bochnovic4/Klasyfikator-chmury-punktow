@@ -45,22 +45,6 @@ class LasFileManager:
 
         return o3d_points
 
-    def visualize(self, enable_func):
-        def visualize_in_thread():
-            # Convert LAS data to Open3D point cloud and visualize it.
-            o3d_points = self.covert_to_o3d_data()
-
-            if self.points is not None:
-                o3d.visualization.draw_geometries([o3d_points])
-            else:
-                print("Point cloud is not created yet.")
-
-            # Po zamknięciu okna Open3D, wywołaj funkcję enable_func, aby ponownie włączyć przyciski.
-            enable_func()
-
-        # Uruchomienie procesu w osobnym wątku
-        thread = threading.Thread(target=visualize_in_thread)
-        thread.start()
 
     def filter_points(self, nb_neighbors=20, std_ratio=10.0, invert=False):
         # Filter out noise from the point cloud using statistical outlier removal.

@@ -1,3 +1,5 @@
+import threading
+
 import numpy as np
 import laspy
 import customtkinter as ctk
@@ -67,6 +69,23 @@ class App(ctk.CTk):
         self.menu.configure(state='normal')
         self.menu.enable()
         self.update_frame_data()
+
+    def visualize(self):
+        def visualize_in_thread():
+            # Convert LAS data to Open3D point cloud and visualize it.
+            o3d_points = self.las_manager.covert_to_o3d_data()
+
+            if self.las_manager.points is not None:
+                o3d.visualization.draw_geometries([o3d_points])
+            else:
+                print("Point cloud is not created yet.")
+
+            # Po zamknięciu okna Open3D, wywołaj funkcję enable_func, aby ponownie włączyć przyciski.
+            self.enable_all()
+
+        # Uruchomienie procesu w osobnym wątku
+        thread = threading.Thread(target=visualize_in_thread)
+        thread.start()
 
 
 App()

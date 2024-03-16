@@ -29,8 +29,7 @@ class WorkFrame(ctk.CTkFrame):
     def __init__(self, parent, parents_parent, las_manager):
         super().__init__(master=parent, fg_color='transparent')
         self.pack(expand=True, fill='both')
-        self.btn_visualize = BtnVisualize(self, las_manager.visualize, parents_parent.disable_all,
-                                          parents_parent.enable_all)
+        self.btn_visualize = BtnVisualize(self, parents_parent.visualize, parents_parent.disable_all)
         self.btn_filter_points = BtnCreator(self, "Usuń szum", las_manager.filter_points, parents_parent.disable_all,
                                             parents_parent.enable_all)
 
