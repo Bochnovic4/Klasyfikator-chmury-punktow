@@ -1,9 +1,10 @@
 # default values
-SZYBKOSC_SCROLLOWANIA_OBRAZU = 5
+
 
 # colors
 BACKGROUND_COLOR = "#2b2b2b"
 WHITE = "#FFFFFF"
+RED = "#8a0606"
 LABEL_COLORS = {
     0: [0, 0, 0],  # Never classified (Black)
     1: [0.5, 0.5, 0.5],  # Unassigned (Gray)
