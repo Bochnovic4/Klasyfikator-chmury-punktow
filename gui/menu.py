@@ -1,5 +1,6 @@
 import customtkinter as ctk
-from btn_open import *
+
+from gui.btn_open import *
 from las_file_manager import LasFileManager
 
 

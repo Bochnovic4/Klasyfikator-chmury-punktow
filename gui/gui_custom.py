@@ -7,9 +7,10 @@ from PIL import Image, ImageTk
 import open3d as o3d
 
 from gui.btn_open import *
+from gui.menu import Menu
 from las_file_manager import LasFileManager
 from settings import *
-from menu import Menu
+
 
 
 class App(ctk.CTk):
@@ -87,5 +88,3 @@ class App(ctk.CTk):
         thread = threading.Thread(target=visualize_in_thread)
         thread.start()
 
-
-App()
