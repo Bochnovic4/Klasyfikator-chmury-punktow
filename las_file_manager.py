@@ -85,17 +85,13 @@ class LasFileManager:
         dane = {
             "nazwy wymiarów pliku LAS":
                 str(list(self.las_file.point_format.dimension_names)),
-            "nazwy podstawowych wymiarów pliku LAS":
-                str(list(self.las_file.point_format.standard_dimension_names)),
-            "nazwy dodatkowych wymiarów pliku LAS":
-                str(list(self.las_file.point_format.extra_dimension_names)),
             "Format pliku LAS":
                 str(self.las_file.header.version),
             "Format punktów":
                 str(self.las_file.header.version),
             "Liczba punktów":
                 str(len(self.points)),
-            "sklasyfikowane punkty":
+            "klasyfikacje":
                 str(np.unique(self.las_file.classification)),
             "min x":
                 str(self.las_file.header.x_min),

@@ -39,7 +39,7 @@ class BtnVisualize(ctk.CTkButton):
         self.disable_func()
         self.func()
 
-
+# generic button creator if function to use doesn't have input variables you can use this
 class BtnCreator(ctk.CTkButton):
     def __init__(self, parent, text, func, disable_func, enable_func):
         super().__init__(master=parent, command=self.func, text=text)
@@ -82,27 +82,24 @@ class Frame(ctk.CTkFrame):
         super().__init__(master=parent)
         self.grid(column=1, row=0, sticky='nsew', padx=50, pady=25)
 
-        self.labels = {}  # Słownik do przechowywania referencji do etykiet
+        self.labels = {}
 
-        self.bind("<Configure>", self.update_wraplength)  # Bindowanie zdarzenia zmiany rozmiaru okna
+        self.bind("<Configure>", self.update_wraplength)
 
         # Tworzenie etykiet na podstawie danych
         for key, var in dane.items():
             label = ctk.CTkLabel(self, text=f"{key}: {var}")
             label.grid(row=len(self.labels), column=0, sticky='w')
-            self.labels[key] = label  # Dodanie etykiety do słownika
+            self.labels[key] = label
 
+    # wrap length of text is dynamic
     def update_wraplength(self, event=None):
-        # Aktualizacja szerokości zawijania tekstu na podstawie dostępnej szerokości dla etykiety
         for label in self.labels.values():
-            container_width = self.winfo_width() - self.grid_info()['padx']*2  # Szerokość dostępna dla etykiety
-            wrap_length = int(container_width * 0.9)  # Używamy 90% dostępnej szerokości
-            label.update_idletasks()  # Zaktualizuj widżet
-            label.configure(wraplength=wrap_length)  # Ustaw szerokość zawijania tekstu
-
+            container_width = self.winfo_width() - self.grid_info()['padx']*2
+            wrap_length = int(container_width * 0.9) # use 90% of available space in container
+            label.update_idletasks()
+            label.configure(wraplength=wrap_length)
     def update_data(self, new_data):
-        # Metoda do aktualizacji danych
         for key, value in new_data.items():
-            # Sprawdzenie, czy istnieje etykieta dla danego klucza
             if key in self.labels:
                 self.labels[key].configure(text=f"{key}: {value}")
