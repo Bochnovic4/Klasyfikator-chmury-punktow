@@ -3,7 +3,7 @@ import tkinter as tk
 import laspy
 import numpy as np
 import open3d as o3d
-import pandas
+import matplotlib.pyplot as plt
 
 
 class LasFileManager:
@@ -112,7 +112,7 @@ class LasFileManager:
             "średnia intensywność":
                 str(np.mean(self.las_file.intensity)),
         }
-        return dane
+
 
     def __str__(self):
         return str(self.las_file)
