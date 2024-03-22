@@ -17,7 +17,8 @@ class SaveFrame(ctk.CTkFrame):
         self.btn_save = BtnSave(self, las_manager.write_las, gui_custom.file_path)
         self.btn_save_as = BtnSaveAs(self, las_manager.write_las)
 
-        self.btn_close = BtnClose(self, gui_custom.choose_file)
+        self.btn_close = BtnClose(self, gui_custom.choose_file,gui_custom.disable_all,
+                                           gui_custom.enable_all)
 
         Separator(self, "Model:")
 

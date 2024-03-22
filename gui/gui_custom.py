@@ -13,6 +13,7 @@ class App(ctk.CTk):
 
     def __init__(self):
         super().__init__()
+        self.model = None
         self.file_path = None
 
         ctk.set_appearance_mode('dark')
@@ -39,9 +40,11 @@ class App(ctk.CTk):
 
     def start_after_choosing_file(self):
         self.las_manager = LasFileManager(self.file_path)
-        self.model = CloudPointClassifier()
+        if self.model is None:
+            self.model = CloudPointClassifier()
         self.menu = Menu(self, self.las_manager, self.model)
         self.panel = TextFrame(self, self.las_manager.file_information())
+
 
     def update_frame_data(self):
         # Metoda do aktualizacji danych w klasie Frame

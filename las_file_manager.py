@@ -45,7 +45,6 @@ class LasFileManager:
 
         return o3d_points
 
-
     def filter_points(self, nb_neighbors=20, std_ratio=10.0, invert=False):
         # Filter out noise from the point cloud using statistical outlier removal.
         o3d_points = self.covert_to_o3d_data()
