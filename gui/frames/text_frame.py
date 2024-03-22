@@ -17,7 +17,7 @@ class TextFrame(ctk.CTkFrame):
             self.labels[key] = label
 
     # wrap length of text is dynamic
-    def update_wraplength(self):
+    def update_wraplength(self, event=None):
         for label in self.labels.values():
             container_width = self.winfo_width() - self.grid_info()['padx'] * 2
             wrap_length = int(container_width * 0.9)  # use 90% of available space in container
