@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 
 class LasFileManager:
-    def __init__(self, file_path, labels=None):
+    def __init__(self, file_path):
         # Initialize the class with the path to a LAS file.
         self.file_path = file_path
         # Read the LAS file using laspy.
@@ -17,7 +17,7 @@ class LasFileManager:
         # Extract RGB colors of points from the LAS file and stack them into a numpy array.
         self.colors = np.column_stack((self.las_file.red, self.las_file.green, self.las_file.blue))
         # Convert the classification of each point into a numpy array.
-        self.classes = labels if labels is not None else np.asarray(self.las_file.classification)
+        self.classes = np.asarray(self.las_file.classification)
 
     def write_las(self, output_path):
         # Create a new LAS file with the same version and point format as the input file.
@@ -112,7 +112,7 @@ class LasFileManager:
             "średnia intensywność":
                 str(np.mean(self.las_file.intensity)),
         }
-
+        return dane
 
     def __str__(self):
         return str(self.las_file)
