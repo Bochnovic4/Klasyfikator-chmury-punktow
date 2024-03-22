@@ -10,8 +10,9 @@ class CloudPointClassifier:
     def __init__(self):
         self.model = None
 
-    def classify(self, df):
-        predictions = self.model.predict(df.drop(columns=['label']))
+    def classify(self, points):
+        df = pd.DataFrame(points, columns=COLUMNS)
+        predictions = self.model.predict(df)
         return predictions
 
     def train_model(self, features, labels):

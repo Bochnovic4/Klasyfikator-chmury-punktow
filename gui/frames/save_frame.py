@@ -19,7 +19,7 @@ class SaveFrame(ctk.CTkFrame):
 
         self.btn_close = BtnClose(self, gui_custom.choose_file)
 
-        Separator(self, "działania na modelu:")
+        Separator(self, "Model:")
 
         self.btn_load_model = BtnLoadModel(self, model.load, gui_custom.disable_all,
                                            gui_custom.enable_all)
