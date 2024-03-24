@@ -3,7 +3,6 @@ import tkinter as tk
 import laspy
 import numpy as np
 import open3d as o3d
-import matplotlib.pyplot as plt
 
 
 class LasFileManager:
@@ -45,7 +44,6 @@ class LasFileManager:
 
         return o3d_points
 
-
     def filter_points(self, nb_neighbors=20, std_ratio=10.0, invert=False):
         # Filter out noise from the point cloud using statistical outlier removal.
         o3d_points = self.covert_to_o3d_data()
@@ -81,8 +79,28 @@ class LasFileManager:
 
         self.colors = colors.astype(np.uint16)
 
-    def file_information(self):
-        dane = {
+    def class_informatios(self):
+        result = {
+            "Liczba punktów":
+                str(len(self.points)),
+            "klasyfikacje":
+                str(np.unique(self.classes)),
+            "min x":
+                str(np.min(self.points[0:])),
+            "max x":
+                str(np.max(self.points[0:])),
+            "min y":
+                str(np.min(self.points[1:])),
+            "max y":
+                str(np.max(self.points[1:])),
+            "min z":
+                str(np.min(self.points[2:])),
+            "max z":
+                str(np.max(self.points[2:])),
+        }
+
+    def file_informations(self):
+        result = {
             "nazwy wymiarów pliku LAS":
                 str(list(self.las_file.point_format.dimension_names)),
             "Format pliku LAS":
@@ -90,7 +108,7 @@ class LasFileManager:
             "Format punktów":
                 str(self.las_file.header.version),
             "Liczba punktów":
-                str(len(self.points)),
+                str(len(self.las_file.points)),
             "klasyfikacje":
                 str(np.unique(self.las_file.classification)),
             "min x":
@@ -113,6 +131,29 @@ class LasFileManager:
                 str(np.mean(self.las_file.intensity)),
         }
 
+    def compare_classifications(self, other):
+        if not isinstance(other, LasFileManager):
+            raise ValueError("Argument musi być instancją LasFileManager")
+
+        if len(self.classes) != len(other.classes):
+            raise ValueError("Obiekty muszą mieć tę samą liczbę punktów do porównania")
+
+        correct_classifications = self.classes == other.classes
+        total_correct = np.sum(correct_classifications)
+        total_points = len(self.classes)
+        accuracy = total_correct / total_points
+
+        result = f"Liczba poprawnie sklasyfikowanych punktów: {total_correct}/{total_points} ({accuracy:.2%})\n"
+
+        unique_classes = np.unique(self.classes)
+        for cls in unique_classes:
+            cls_mask = self.classes == cls
+            correct_per_class = np.sum(correct_classifications[cls_mask])
+            total_per_class = np.sum(cls_mask)
+            accuracy_per_class = correct_per_class / total_per_class if total_per_class else 0
+            result += (
+                f"Klasa {cls}: Poprawnie sklasyfikowane "
+                f"{correct_per_class}/{total_per_class} ({accuracy_per_class:.2%})\n")
 
     def __str__(self):
         return str(self.las_file)
