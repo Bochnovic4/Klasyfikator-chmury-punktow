@@ -3,7 +3,6 @@ import tkinter as tk
 import laspy
 import numpy as np
 import open3d as o3d
-import matplotlib.pyplot as plt
 
 
 class LasFileManager:
@@ -80,8 +79,28 @@ class LasFileManager:
 
         self.colors = colors.astype(np.uint16)
 
-    def file_information(self):
-        dane = {
+    def class_informatios(self):
+        result = {
+            "Liczba punktów":
+                str(len(self.points)),
+            "klasyfikacje":
+                str(np.unique(self.classes)),
+            "min x":
+                str(np.min(self.points[0:])),
+            "max x":
+                str(np.max(self.points[0:])),
+            "min y":
+                str(np.min(self.points[1:])),
+            "max y":
+                str(np.max(self.points[1:])),
+            "min z":
+                str(np.min(self.points[2:])),
+            "max z":
+                str(np.max(self.points[2:])),
+        }
+
+    def file_informations(self):
+        result = {
             "nazwy wymiarów pliku LAS":
                 str(list(self.las_file.point_format.dimension_names)),
             "Format pliku LAS":
@@ -89,7 +108,7 @@ class LasFileManager:
             "Format punktów":
                 str(self.las_file.header.version),
             "Liczba punktów":
-                str(len(self.points)),
+                str(len(self.las_file.points)),
             "klasyfikacje":
                 str(np.unique(self.las_file.classification)),
             "min x":
