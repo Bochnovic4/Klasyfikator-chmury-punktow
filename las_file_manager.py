@@ -6,7 +6,7 @@ import open3d as o3d
 
 
 class LasFileManager:
-    def __init__(self, file_path, labels=None):
+    def __init__(self, file_path):
         # Initialize the class with the path to a LAS file.
         self.file_path = file_path
         # Read the LAS file using laspy.
@@ -16,7 +16,7 @@ class LasFileManager:
         # Extract RGB colors of points from the LAS file and stack them into a numpy array.
         self.colors = np.column_stack((self.las_file.red, self.las_file.green, self.las_file.blue))
         # Convert the classification of each point into a numpy array.
-        self.classes = labels if labels is not None else np.asarray(self.las_file.classification)
+        self.classes = np.asarray(self.las_file.classification)
 
     def write_las(self, output_path):
         # Create a new LAS file with the same version and point format as the input file.
@@ -130,30 +130,7 @@ class LasFileManager:
             "średnia intensywność":
                 str(np.mean(self.las_file.intensity)),
         }
-
-    def compare_classifications(self, other):
-        if not isinstance(other, LasFileManager):
-            raise ValueError("Argument musi być instancją LasFileManager")
-
-        if len(self.classes) != len(other.classes):
-            raise ValueError("Obiekty muszą mieć tę samą liczbę punktów do porównania")
-
-        correct_classifications = self.classes == other.classes
-        total_correct = np.sum(correct_classifications)
-        total_points = len(self.classes)
-        accuracy = total_correct / total_points
-
-        result = f"Liczba poprawnie sklasyfikowanych punktów: {total_correct}/{total_points} ({accuracy:.2%})\n"
-
-        unique_classes = np.unique(self.classes)
-        for cls in unique_classes:
-            cls_mask = self.classes == cls
-            correct_per_class = np.sum(correct_classifications[cls_mask])
-            total_per_class = np.sum(cls_mask)
-            accuracy_per_class = correct_per_class / total_per_class if total_per_class else 0
-            result += (
-                f"Klasa {cls}: Poprawnie sklasyfikowane "
-                f"{correct_per_class}/{total_per_class} ({accuracy_per_class:.2%})\n")
+        return dane
 
     def __str__(self):
         return str(self.las_file)

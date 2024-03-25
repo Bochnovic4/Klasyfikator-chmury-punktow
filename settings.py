@@ -24,3 +24,7 @@ LABEL_COLORS = {
     17: [0, 0, 0.5],  # Bridge Deck (Dark Blue)
     18: [1, 1, 1],  # High Noise (White)
 }
+# Liczba rdzeni do traningu modelu
+N_JOBS = -1
+# kolumny do treningu modelu
+COLUMNS = ['x', 'y', 'z']
