@@ -43,12 +43,11 @@ class App(ctk.CTk):
         if self.model is None:
             self.model = CloudPointClassifier()
         self.menu = Menu(self, self.las_manager, self.model)
-        self.panel = TextFrame(self, self.las_manager.file_information())
-
+        self.panel = TextFrame(self, self.las_manager.class_informations())
 
     def update_frame_data(self):
         # Metoda do aktualizacji danych w klasie Frame
-        new_data = self.las_manager.file_information()
+        new_data = self.las_manager.class_informations()
         self.panel.update_data(new_data)
 
     def disable_all(self):
