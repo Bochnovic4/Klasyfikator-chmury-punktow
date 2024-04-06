@@ -7,16 +7,12 @@ import open3d as o3d
 
 class LasFileManager:
     def __init__(self, file_path, labels=None):
-        # Initialize the class with the path to a LAS file.
         self.file_path = file_path
-        # Read the LAS file using laspy.
         self.las_file = laspy.read(self.file_path)
-        # Extract coordinates (x, y, z) of points from the LAS file and stack them into a numpy array.
         self.points = np.column_stack((self.las_file.x, self.las_file.y, self.las_file.z))
-        # Extract RGB colors of points from the LAS file and stack them into a numpy array.
         self.colors = np.column_stack((self.las_file.red, self.las_file.green, self.las_file.blue))
-        # Convert the classification of each point into a numpy array.
         self.classes = labels if labels is not None else np.asarray(self.las_file.classification)
+        self.ground_points_indices = np.where(np.isin(self.classes, [11, 17, 25]))[0]
 
     def write_las(self, output_path):
         # Create a new LAS file with the same version and point format as the input file.
@@ -25,20 +21,16 @@ class LasFileManager:
         header = laspy.LasHeader(version=version, point_format=point_format)
         las = laspy.LasData(header)
 
-        # Populate the new LAS file with modified point coordinates and colors.
         las.x, las.y, las.z = np.asarray(self.points).T
         las.red, las.green, las.blue = np.asarray(self.colors).T
-        # Populate the new LAS file with modified classifications.
         las.classification = np.asarray(self.classes)
 
-        # Write the modified LAS data to the specified output path.
         las.write(output_path)
 
     def covert_to_o3d_data(self):
         # Convert LAS point data to an Open3D point cloud format.
         o3d_points = o3d.geometry.PointCloud()
         o3d_points.points = o3d.utility.Vector3dVector(self.points)
-        # If color data is available, convert and set the colors for the Open3D point cloud.
         if len(self.colors) == len(self.points):
             o3d_points.colors = o3d.utility.Vector3dVector(self.colors / 65535.0)
 
