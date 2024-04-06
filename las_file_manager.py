@@ -158,5 +158,48 @@ class LasFileManager:
                 f"{correct_per_class}/{total_per_class} ({accuracy_per_class:.2%})\n")
 
         return result
+
+        def normalize_height(self, indices_array, indices, class_list, axis):
+        indices_array = self.create_split_points_array(indices_array, indices, class_list, axis)
+        print(len(indices_array))
+        for indices in indices_array:
+            self.set_minimum_height(indices)
+        self.points[:, 2][self.ground_points_indices] = 0
+
+    def split_points(self, indices, axis):
+        points = self.points[indices][:, axis]
+        median = np.median(points)
+
+        indices_left = indices[np.where(points <= median)[0]]
+        indices_right = indices[np.where(points > median)[0]]
+
+        return indices_left, indices_right
+
+    def create_split_points_array(self, indices_array, indices, class_list, axis):
+        indices_left, indices_right = self.split_points(indices, axis)
+
+        len_ground_indices_left = len(np.intersect1d(self.ground_points_indices, indices_left))
+        len_ground_indices_right = len(np.intersect1d(self.ground_points_indices, indices_right))
+
+        if len_ground_indices_left <= 10000:
+            indices_array.append(indices_left)
+        else:
+            self.create_split_points_array(indices_array, indices_left, class_list, 1 - axis)
+
+        if len_ground_indices_right <= 10000:
+            indices_array.append(indices_right)
+        else:
+            self.create_split_points_array(indices_array, indices_right, class_list, 1 - axis)
+
+        return indices_array
+
+    def set_minimum_height(self, indices):
+        intersection_indices = np.intersect1d(self.ground_points_indices, indices)
+        if len(intersection_indices) > 0:
+            min_z = np.min(self.points[intersection_indices][:, 2])
+        else:
+            min_z = np.min(self.points[indices][:, 2])
+        self.points[indices, 2] -= min_z
+    
     def __str__(self):
         return str(self.las_file)
