@@ -86,17 +86,17 @@ class LasFileManager:
             "klasyfikacje":
                 str(np.unique(self.classes)),
             "min x":
-                str(np.min(self.points[0:])),
+                str(np.min(self.points[:, 0])),
             "max x":
-                str(np.max(self.points[0:])),
+                str(np.max(self.points[:, 0])),
             "min y":
-                str(np.min(self.points[1:])),
+                str(np.min(self.points[:, 1])),
             "max y":
-                str(np.max(self.points[1:])),
+                str(np.max(self.points[:, 1])),
             "min z":
-                str(np.min(self.points[2:])),
+                str(np.min(self.points[:, 2])),
             "max z":
-                str(np.max(self.points[2:])),
+                str(np.max(self.points[:, 2])),
         }
         return result
 
