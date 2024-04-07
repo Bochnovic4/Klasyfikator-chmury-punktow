@@ -81,6 +81,8 @@ class LasFileManager:
 
     def class_informations(self):
         result = {
+            "Plik Las":
+                str(self.file_path),
             "Liczba punktów":
                 str(len(self.points)),
             "klasyfikacje":
@@ -158,5 +160,6 @@ class LasFileManager:
                 f"{correct_per_class}/{total_per_class} ({accuracy_per_class:.2%})\n")
 
         return result
+
     def __str__(self):
         return str(self.las_file)

@@ -47,6 +47,7 @@ class App(ctk.CTk):
 
     def update_frame_data(self):
         # Metoda do aktualizacji danych w klasie Frame
+
         new_data = self.las_manager.class_informations()
         self.panel.update_data(new_data)
 
@@ -62,18 +63,18 @@ class App(ctk.CTk):
         self.update_frame_data()
 
     def visualize(self):
-        def visualize_in_thread():
-            # Convert LAS data to Open3D point cloud and visualize it.
-            o3d_points = self.las_manager.covert_to_o3d_data()
-
-            if self.las_manager.points is not None:
-                o3d.visualization.draw_geometries([o3d_points])
-            else:
-                print("Point cloud is not created yet.")
-
-            # Po zamknięciu okna Open3D, wywołaj funkcję enable_func, aby ponownie włączyć przyciski.
-            self.enable_all()
-
         # Uruchomienie procesu w osobnym wątku
-        thread = threading.Thread(target=visualize_in_thread)
+        thread = threading.Thread(target=self.visualize_in_thread)
         thread.start()
+
+    def visualize_in_thread(self):
+        # Convert LAS data to Open3D point cloud and visualize it.
+        o3d_points = self.las_manager.covert_to_o3d_data()
+
+        if self.las_manager.points is not None:
+            o3d.visualization.draw_geometries([o3d_points])
+        else:
+            print("Point cloud is not created yet.")
+
+        # Po zamknięciu okna Open3D, wywołaj funkcję enable_func, aby ponownie włączyć przyciski.
+        self.enable_all()
