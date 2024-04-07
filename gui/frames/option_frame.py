@@ -11,11 +11,14 @@ class OptionFrame(ctk.CTkFrame):
         super().__init__(master=parent, fg_color='transparent')
         self.pack(expand=True, fill='both')
         self.options = settings
+
         Separator(self, "ilość wykorzystywanych rdzeni do traningu modelu:")
         self.n_jobs_option = NJobsOption(self, self.set_options_temporary)
         self.btn_save_options = BtnSaveOptions(self, self.update_settings)
 
+        Separator(self, "kolumny do treningu modelu:")
         self.current_collumns = self.options.COLUMNS
+        
         self.check_test = CheckBoxGeneric(self, "x", self.set_checkbox_options,
                                           'x', 1 if 'x' in self.current_collumns else 0)
         self.check_test = CheckBoxGeneric(self, "y", self.set_checkbox_options,
