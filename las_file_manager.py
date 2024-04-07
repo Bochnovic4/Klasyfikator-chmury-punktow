@@ -36,7 +36,7 @@ class LasFileManager:
 
         return o3d_points
 
-    def filter_points(self, nb_neighbors=20, std_ratio=10.0, invert=False):
+        def filter_points(self, nb_neighbors=20, std_ratio=10.0, invert=False):
         # Filter out noise from the point cloud using statistical outlier removal.
         o3d_points = self.covert_to_o3d_data()
 
@@ -50,6 +50,8 @@ class LasFileManager:
         self.classes = self.classes[ind]
         colors_array = np.asarray(o3d_points.colors) * 65535
         self.colors = colors_array.astype(np.uint16)
+        self.ground_points_indices = np.where(np.isin(self.classes, [11, 17, 25]))[0]
+        self.non_ground_points_indices = np.where(np.isin(self.classes, [0, 1, 13, 15, 19]))[0]
 
     def color_classified(self):
         classification_colors = {
@@ -151,11 +153,14 @@ class LasFileManager:
 
         return result
 
-        def normalize_height(self, indices_array, indices, class_list, axis):
-        indices_array = self.create_split_points_array(indices_array, indices, class_list, axis)
+    def normalize_height(self, class_list):
+        indices_array = []
+        indices = np.arange(len(WMII.points))
+        indices_array = self.create_split_points_array(indices_array, indices, class_list, 0)
         print(len(indices_array))
         for indices in indices_array:
-            self.set_minimum_height(indices)
+            intersection_indices = np.intersect1d(self.ground_points_indices, indices)
+            self.points[indices, 2] -= np.min(self.points[intersection_indices][:, 2])
         self.points[:, 2][self.ground_points_indices] = 0
 
     def split_points(self, indices, axis):
@@ -167,31 +172,27 @@ class LasFileManager:
 
         return indices_left, indices_right
 
+
     def create_split_points_array(self, indices_array, indices, class_list, axis):
         indices_left, indices_right = self.split_points(indices, axis)
 
-        len_ground_indices_left = len(np.intersect1d(self.ground_points_indices, indices_left))
-        len_ground_indices_right = len(np.intersect1d(self.ground_points_indices, indices_right))
+        len_ground_indices_left = np.intersect1d(self.ground_points_indices, indices_left).shape[0]
+        len_ground_indices_right = np.intersect1d(self.ground_points_indices, indices_right).shape[0]
 
-        if len_ground_indices_left <= 10000:
-            indices_array.append(indices_left)
+        if len_ground_indices_left == 0 or len_ground_indices_right == 0:
+            indices_array.append(indices)
         else:
-            self.create_split_points_array(indices_array, indices_left, class_list, 1 - axis)
+            if len_ground_indices_left <= 100000:
+                indices_array.append(indices_left)
+            else:
+                self.create_split_points_array(indices_array, indices_left, class_list, 1 - axis)
 
-        if len_ground_indices_right <= 10000:
-            indices_array.append(indices_right)
-        else:
-            self.create_split_points_array(indices_array, indices_right, class_list, 1 - axis)
+            if len_ground_indices_right <= 100000:
+                indices_array.append(indices_right)
+            else:
+                self.create_split_points_array(indices_array, indices_right, class_list, 1 - axis)
 
         return indices_array
-
-    def set_minimum_height(self, indices):
-        intersection_indices = np.intersect1d(self.ground_points_indices, indices)
-        if len(intersection_indices) > 0:
-            min_z = np.min(self.points[intersection_indices][:, 2])
-        else:
-            min_z = np.min(self.points[indices][:, 2])
-        self.points[indices, 2] -= min_z
     
     def __str__(self):
         return str(self.las_file)
