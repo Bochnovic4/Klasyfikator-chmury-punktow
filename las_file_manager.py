@@ -182,12 +182,12 @@ class LasFileManager:
         if len_ground_indices_left == 0 or len_ground_indices_right == 0:
             indices_array.append(indices)
         else:
-            if len_ground_indices_left <= 100000:
+            if len_ground_indices_left <= 10000:
                 indices_array.append(indices_left)
             else:
                 self.create_split_points_array(indices_array, indices_left, class_list, 1 - axis)
 
-            if len_ground_indices_right <= 100000:
+            if len_ground_indices_right <= 10000:
                 indices_array.append(indices_right)
             else:
                 self.create_split_points_array(indices_array, indices_right, class_list, 1 - axis)
