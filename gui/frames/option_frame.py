@@ -2,6 +2,7 @@ import customtkinter as ctk
 import settings
 from gui.buttons.Separator import Separator
 from gui.buttons.btn_save_options import BtnSaveOptions
+from gui.frames.check_box_generic import CheckBoxGeneric
 from gui.other_widgets.combobox_n_jobs_option import NJobsOption
 
 
@@ -13,6 +14,28 @@ class OptionFrame(ctk.CTkFrame):
         Separator(self, "ilość wykorzystywanych rdzeni do traningu modelu:")
         self.n_jobs_option = NJobsOption(self, self.set_options_temporary)
         self.btn_save_options = BtnSaveOptions(self, self.update_settings)
+
+        self.current_collumns = self.options.COLUMNS
+        self.check_test = CheckBoxGeneric(self, "x", self.set_checkbox_options,
+                                          'x', 1 if 'x' in self.current_collumns else 0)
+        self.check_test = CheckBoxGeneric(self, "y", self.set_checkbox_options,
+                                          'y', 1 if 'y' in self.current_collumns else 0)
+        self.check_test = CheckBoxGeneric(self, "z", self.set_checkbox_options,
+                                          'z', 1 if 'z' in self.current_collumns else 0)
+        self.check_test = CheckBoxGeneric(self, "number of returns", self.set_checkbox_options,
+                                          'number_of_returns', 1 if 'number_of_returns' in self.current_collumns else 0)
+        self.check_test = CheckBoxGeneric(self, "intensity", self.set_checkbox_options,
+                                          'intensity', 1 if 'intensity' in self.current_collumns else 0)
+
+    def set_checkbox_options(self, option_value, value):
+        position = ['x', 'y', 'z', 'number_of_returns', 'intensity']
+        if value:
+            self.current_collumns.append(option_value)
+            self.current_collumns.sort(key=lambda x: position.index(x))
+        else:
+            self.current_collumns.remove(option_value)
+
+        self.set_options_temporary(self.current_collumns,'COLUMNS')
 
     def set_options_temporary(self, value, option):
         setattr(self.options, option, value)
