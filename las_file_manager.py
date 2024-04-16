@@ -58,23 +58,13 @@ class LasFileManager:
         self.non_ground_points_indices = np.where(np.isin(self.classes, [0, 1, 13, 15, 19]))[0]
 
     def color_classified(self):
-        classification_colors = {
-            0: [0, 0, 1],  # szum: Niebieski
-            1: [0.6, 0.4, 0],  # niesklasyfikowane: Brązowy
-            11: [0, 1, 0],  # trawa: zielony
-            13: [0, 0.3, 0],  # nw co to jest: Ciemnozielony
-            15: [0.65, 0.50, 0.39],  # Budynki: Orzechowy
-            17: [0.3, 0.3, 0.3],  # ulica: Ciemnoszary
-            19: [1, 0, 0],  # Przewody: Czerwony
-            25: [0.85, 0.85, 0.85]  # droga: Szary
-        }
-
-        # Initialize the color array for each point
-        colors = np.zeros((len(self.las_file.points), 3))
+        classification_colors = settings.LABEL_COLORS
+        colors = np.zeros((len(self.points), 3))
+        
         for classification, color in classification_colors.items():
-            indices = self.las_file.classification == classification
+            indices = self.classes == classification
             colors[indices] = np.asarray(color) * 65535
-
+            
         self.colors = colors.astype(np.uint16)
 
     def class_informations(self):
