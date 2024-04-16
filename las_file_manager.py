@@ -217,47 +217,6 @@ class LasFileManager:
 
         self.phi_angles_of_normal_vectors = phi_angles
         self.theta_angles_of_normal_vectors = theta_angles
-
-    def normalize_height(self, class_list):
-        indices_array = []
-        indices = np.arange(len(WMII.points))
-        indices_array = self.create_split_points_array(indices_array, indices, class_list, 0)
-        print(len(indices_array))
-        for indices in indices_array:
-            intersection_indices = np.intersect1d(self.ground_points_indices, indices)
-            self.points[indices, 2] -= np.min(self.points[intersection_indices][:, 2])
-        self.points[:, 2][self.ground_points_indices] = 0
-
-    def split_points(self, indices, axis):
-        points = self.points[indices][:, axis]
-        median = np.median(points)
-
-        indices_left = indices[np.where(points <= median)[0]]
-        indices_right = indices[np.where(points > median)[0]]
-
-        return indices_left, indices_right
-
-
-    def create_split_points_array(self, indices_array, indices, class_list, axis):
-        indices_left, indices_right = self.split_points(indices, axis)
-
-        len_ground_indices_left = np.intersect1d(self.ground_points_indices, indices_left).shape[0]
-        len_ground_indices_right = np.intersect1d(self.ground_points_indices, indices_right).shape[0]
-
-        if len_ground_indices_left == 0 or len_ground_indices_right == 0:
-            indices_array.append(indices)
-        else:
-            if len_ground_indices_left <= 10000:
-                indices_array.append(indices_left)
-            else:
-                self.create_split_points_array(indices_array, indices_left, class_list, 1 - axis)
-
-            if len_ground_indices_right <= 10000:
-                indices_array.append(indices_right)
-            else:
-                self.create_split_points_array(indices_array, indices_right, class_list, 1 - axis)
-
-        return indices_array
     
     def __str__(self):
         return str(self.las_file)
