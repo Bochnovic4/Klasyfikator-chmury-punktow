@@ -84,6 +84,20 @@ class LasFileManager:
             
         self.colors = colors.astype(np.uint16)
 
+    def color_normalized_array(self, array):
+        def get_color(value):
+            if value < 0.5:
+                # Map from blue to green
+                green = 2 * value
+                blue = 1 - green
+                red = 0
+            else:
+                # Map from green to red
+                red = (value - 0.5) * 2
+                green = 1 - red
+                blue = 0
+            return red, green, blue
+
     def class_informations(self):
         result = {
             "Liczba punktów":
