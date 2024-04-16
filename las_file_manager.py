@@ -13,6 +13,8 @@ class LasFileManager:
         self.colors = np.column_stack((self.las_file.red, self.las_file.green, self.las_file.blue))
         self.classes = labels if labels is not None else np.asarray(self.las_file.classification)
         self.ground_points_indices = np.where(np.isin(self.classes, [11, 17, 25]))[0]
+        self.ball_density = None
+        self.cylinder_density = None
 
     def write_las(self, output_path):
         # Create a new LAS file with the same version and point format as the input file.
@@ -149,6 +151,23 @@ class LasFileManager:
                 f"{correct_per_class}/{total_per_class} ({accuracy_per_class:.2%})\n")
 
         return result
+
+    def set_density(self):
+        def density(points, radius):
+            tree = spatial.cKDTree(points)
+
+            neighbors = tree.query_ball_tree(tree, radius)
+            frequency = np.array([len(sublist) for sublist in neighbors])
+
+            min_val = np.min(frequency)
+            max_val = np.max(frequency)
+
+            normalized_frequency = (frequency - min_val) / (max_val - min_val)
+
+            return normalized_frequency
+
+        self.ball_density = density(self.points, 0.2)
+        self.cylinder_density = density(self.points[:, :2], 0.05)
 
     def normalize_height(self, class_list):
         indices_array = []
