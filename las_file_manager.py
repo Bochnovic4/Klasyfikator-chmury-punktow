@@ -31,18 +31,35 @@ class LasFileManager:
 
         las.write(output_path)
 
-    def covert_to_o3d_data(self):
-        # Convert LAS point data to an Open3D point cloud format.
+    def convert_to_o3d_data(self, indices=None):
         o3d_points = o3d.geometry.PointCloud()
-        o3d_points.points = o3d.utility.Vector3dVector(self.points)
-        if len(self.colors) == len(self.points):
-            o3d_points.colors = o3d.utility.Vector3dVector(self.colors / 65535.0)
+
+        if indices is None:
+            points = self.points
+            colors = self.colors
+        else:
+            points = self.points[indices]
+            colors = self.colors[indices]
+
+        o3d_points.points = o3d.utility.Vector3dVector(points)
+        o3d_points.colors = o3d.utility.Vector3dVector(colors / 65535.0)
 
         return o3d_points
 
+    def visualize(self, indices=None):
+        if indices is None:
+            o3d_points = self.convert_to_o3d_data()
+        else:
+            o3d_points = self.convert_to_o3d_data(indices)
+
+        if o3d_points.points:
+            o3d.visualization.draw_geometries([o3d_points])
+        else:
+            print("Point cloud is not created yet.")
+
     def filter_points(self, nb_neighbors=20, std_ratio=10.0, invert=False):
         # Filter out noise from the point cloud using statistical outlier removal.
-        o3d_points = self.covert_to_o3d_data()
+        o3d_points = self.convert_to_o3d_data()
 
         # Perform the statistical outlier removal.
         cl, ind = o3d.geometry.PointCloud.remove_statistical_outlier(o3d_points, nb_neighbors=nb_neighbors,
