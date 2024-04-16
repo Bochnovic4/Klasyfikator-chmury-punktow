@@ -11,7 +11,7 @@ class LasFileManager:
         self.las_file = laspy.read(self.file_path)
         self.points = np.column_stack((self.las_file.x, self.las_file.y, self.las_file.z))
         self.colors = np.column_stack((self.las_file.red, self.las_file.green, self.las_file.blue))
-        self.classes = labels if labels is not None else np.asarray(self.las_file.classification)
+        self.classes = np.asarray(self.las_file.classification)
         self.ground_points_indices = np.where(np.isin(self.classes, [11, 17, 25]))[0]
         self.ball_density = None
         self.cylinder_density = None
