@@ -127,14 +127,11 @@ class LasFileManager:
         }
         return result
 
-    def compare_classifications(self, other):
-        if not isinstance(other, LasFileManager):
-            raise ValueError("Argument musi być instancją LasFileManager")
-
-        if len(self.classes) != len(other.classes):
+    def compare_classifications(self):
+        if len(self.classes) != len(self.las_file.classes):
             raise ValueError("Obiekty muszą mieć tę samą liczbę punktów do porównania")
 
-        correct_classifications = self.classes == other.classes
+        correct_classifications = self.classes == self.las_file.classes
         total_correct = np.sum(correct_classifications)
         total_points = len(self.classes)
         accuracy = total_correct / total_points
