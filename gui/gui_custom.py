@@ -64,7 +64,7 @@ class App(ctk.CTk):
     def visualize(self):
         def visualize_in_thread():
             # Convert LAS data to Open3D point cloud and visualize it.
-            o3d_points = self.las_manager.covert_to_o3d_data()
+            o3d_points = self.las_manager.convert_to_o3d_data()
 
             if self.las_manager.points is not None:
                 o3d.visualization.draw_geometries([o3d_points])
