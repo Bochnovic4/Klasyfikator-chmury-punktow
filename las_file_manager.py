@@ -54,7 +54,7 @@ class LasFileManager:
         if o3d_points.points:
             o3d.visualization.draw_geometries([o3d_points])
         else:
-            print("Point cloud is not created yet.")
+            return "Point cloud is not created yet."
 
     def filter_points(self, nb_neighbors=20, std_ratio=10.0, invert=False):
         # Filter out noise from the point cloud using statistical outlier removal.
@@ -153,7 +153,7 @@ class LasFileManager:
 
     def compare_classifications(self):
         if len(self.classes) != len(self.las_file.classes):
-            raise ValueError("Obiekty muszą mieć tę samą liczbę punktów do porównania")
+            return "Obiekty muszą mieć tę samą liczbę punktów do porównania"
 
         correct_classifications = self.classes == self.las_file.classes
         total_correct = np.sum(correct_classifications)
@@ -216,6 +216,3 @@ class LasFileManager:
 
         self.phi_angles_of_normal_vectors = phi_angles
         self.theta_angles_of_normal_vectors = theta_angles
-    
-    def __str__(self):
-        return str(self.las_file)
