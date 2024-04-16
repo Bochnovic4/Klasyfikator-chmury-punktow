@@ -15,6 +15,8 @@ class LasFileManager:
         self.ground_points_indices = np.where(np.isin(self.classes, [11, 17, 25]))[0]
         self.ball_density = None
         self.cylinder_density = None
+        self.phi_angles_of_normal_vectors = None
+        self.theta_angles_of_normal_vectors = None
 
     def write_las(self, output_path):
         # Create a new LAS file with the same version and point format as the input file.
@@ -168,6 +170,32 @@ class LasFileManager:
 
         self.ball_density = density(self.points, 0.2)
         self.cylinder_density = density(self.points[:, :2], 0.05)
+
+    def set_angles_of_normal_vectors(self):
+        def calculate_phi_angle_of_normals(vertex_normals):
+            z_axis = vertex_normals[:, 2]
+            normal_vector_length = np.linalg.norm(vertex_normals)
+            angle = np.arccos(z_axis / normal_vector_length)
+            return angle
+
+        def calculate_theta_angle_of_normals(vertex_normals):
+            x = vertex_normals[:, 0]
+            y = vertex_normals[:, 1]
+            angle = np.arctan(y, x)
+
+            return angle
+
+        o3d_points = self.convert_to_o3d_data()
+        o3d_points.estimate_normals(
+            search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=0.2, max_nn=100))
+        o3d_points.orient_normals_to_align_with_direction()
+        vertex_normals = np.asarray(o3d_points.normals)
+
+        phi_angles = calculate_phi_angle_of_normals(vertex_normals)
+        theta_angles = calculate_theta_angle_of_normals(vertex_normals)
+
+        self.phi_angles_of_normal_vectors = phi_angles
+        self.theta_angles_of_normal_vectors = theta_angles
 
     def normalize_height(self, class_list):
         indices_array = []
