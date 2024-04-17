@@ -181,22 +181,17 @@ class LasFileManager:
 
         return result
 
-    def set_density(self):
-        def density(points, radius):
+    def set_frequency(self):
+        def get_frequency_of_neighbors(points, radius):
             tree = spatial.cKDTree(points)
 
             neighbors = tree.query_ball_tree(tree, radius)
-            frequency = np.array([len(sublist) for sublist in neighbors])
+            frequency_of_neighbors = np.array([len(sublist) for sublist in neighbors])
 
-            min_val = np.min(frequency)
-            max_val = np.max(frequency)
+            return frequency_of_neighbors
 
-            normalized_frequency = (frequency - min_val) / (max_val - min_val)
-
-            return normalized_frequency
-
-        self.ball_density = density(self.points, 0.2)
-        self.cylinder_density = density(self.points[:, :2], 0.05)
+        self.ball_density = get_frequency_of_neighbors(self.points, 0.2)
+        self.cylinder_density = get_frequency_of_neighbors(self.points[:, :2], 0.05)
 
     def set_angles_of_normal_vectors(self):
         def calculate_phi_angle_of_normals(vertex_normals):
