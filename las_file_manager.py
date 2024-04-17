@@ -97,6 +97,13 @@ class LasFileManager:
                 blue = 0
             return red, green, blue
 
+        min_val, max_val = array.min(), array.max()
+        normalized_array = (array - min_val) / (max_val - min_val)
+        colors = np.array([get_color(value) for value in normalized_array])
+        self.colors[:, 0] = colors[:, 0] * 65535.0
+        self.colors[:, 1] = colors[:, 1] * 65535.0
+        self.colors[:, 2] = colors[:, 2] * 65535.0
+
     def class_informations(self):
         result = {
             "Liczba punktów":
