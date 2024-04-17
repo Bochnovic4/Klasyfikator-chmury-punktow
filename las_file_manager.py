@@ -225,18 +225,19 @@ class LasFileManager:
         self.theta_angles_of_normal_vectors = theta_angles
 
     def get_training_values(self, ground_indices=np.asarray([2])):
-        ground_points_indices = np.where(np.isin(self.classes, ground_indices))[0]
-        ground_points = self.points[ground_points_indices]
+        non_ground_points_indices = np.where(~np.isin(self.classes, ground_indices))[0]
+        ground_points = self.points[non_ground_points_indices]
         x = ground_points[:, 0]
         y = ground_points[:, 1]
+        self.visualize(non_ground_points_indices)
         return (
-            self.classes[ground_points_indices],
+            self.classes[non_ground_points_indices],
             x,
             y,
-            self.las_file.intensity[ground_points_indices],
-            self.las_file.number_of_returns[ground_points_indices],
-            self.ball_density[ground_points_indices],
-            self.cylinder_density[ground_points_indices],
-            self.phi_angles_of_normal_vectors[ground_points_indices],
-            self.theta_angles_of_normal_vectors[ground_points_indices]
+            self.las_file.intensity[non_ground_points_indices],
+            self.las_file.number_of_returns[non_ground_points_indices],
+            self.ball_density[non_ground_points_indices],
+            self.cylinder_density[non_ground_points_indices],
+            self.phi_angles_of_normal_vectors[non_ground_points_indices],
+            self.theta_angles_of_normal_vectors[non_ground_points_indices]
         )
