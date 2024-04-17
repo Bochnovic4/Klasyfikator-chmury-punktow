@@ -252,5 +252,9 @@ class LasFileManager:
         non_ground = CSF.VecInt()  # a list to indicate the index of non-ground points after calculation
         csf.do_filtering(ground, non_ground)  # do actual filtering.
         ground = np.array(ground)
+        non_ground = np.array(non_ground)
+
+        self.classes[ground] = [2]
+        self.classes[non_ground] = [0]
 
         return ground, non_ground
