@@ -224,7 +224,6 @@ class LasFileManager:
         ground_points = self.points[non_ground_points_indices]
         x = ground_points[:, 0]
         y = ground_points[:, 1]
-        self.visualize(non_ground_points_indices)
         return (
             self.classes[non_ground_points_indices],
             x,
