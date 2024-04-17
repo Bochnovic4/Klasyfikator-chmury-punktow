@@ -1,5 +1,5 @@
-import threading
-import tkinter as tk
+import scipy.spatial as spatial
+import settings
 import laspy
 import numpy as np
 import open3d as o3d
