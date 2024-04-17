@@ -3,6 +3,7 @@ import settings
 import laspy
 import numpy as np
 import open3d as o3d
+import CSF
 
 
 class LasFileManager:
@@ -235,3 +236,21 @@ class LasFileManager:
             self.phi_angles_of_normal_vectors[non_ground_points_indices],
             self.theta_angles_of_normal_vectors[non_ground_points_indices]
         )
+
+    def csf(self):
+        xyz = np.vstack((self.points[:, 0], self.points[:, 1],
+                         self.points[:, 2])).transpose()  # extract x, y, z and put into a list
+
+        csf = CSF.CSF()
+
+        # prameter settings
+        csf.params.bSloopSmooth = True
+        csf.params.cloth_resolution = 1
+
+        csf.setPointCloud(xyz)
+        ground = CSF.VecInt()  # a list to indicate the index of ground points after calculation
+        non_ground = CSF.VecInt()  # a list to indicate the index of non-ground points after calculation
+        csf.do_filtering(ground, non_ground)  # do actual filtering.
+        ground = np.array(ground)
+
+        return ground, non_ground
