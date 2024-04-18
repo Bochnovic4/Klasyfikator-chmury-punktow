@@ -30,3 +30,5 @@ LABEL_COLORS = {
 N_JOBS = -1
 # kolumny do treningu modelu
 COLUMNS = ['x', 'y', 'z']
+# rozmiar voxela do downsamplingu
+VOXEL_SIZE = 0.5
