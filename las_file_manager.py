@@ -6,6 +6,8 @@ import open3d as o3d
 import CSF
 
 
+from settings import VOXEL_SIZE
+
 class LasFileManager:
     def __init__(self, file_path, labels=None):
         self.file_path = file_path
@@ -73,6 +75,14 @@ class LasFileManager:
         self.colors = colors_array.astype(np.uint16)
         self.ground_points_indices = np.where(np.isin(self.classes, [11, 17, 25]))[0]
         self.non_ground_points_indices = np.where(np.isin(self.classes, [0, 1, 13, 15, 19]))[0]
+
+    def downsample_point_cloud(self, voxel_size=VOXEL_SIZE):
+        data = self.covert_to_o3d_data()
+        dawnsampled_points = o3d.geometry.PointCloud.voxel_down_sample(data, voxel_size)
+
+        self.points = self.points = np.asarray(dawnsampled_points.points)
+        colors_array = np.asarray(dawnsampled_points.colors) * 65535
+        self.colors = colors_array.astype(np.uint16)
 
     def color_classified(self):
         classification_colors = settings.LABEL_COLORS
