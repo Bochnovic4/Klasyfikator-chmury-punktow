@@ -2,7 +2,7 @@ import customtkinter as ctk
 import settings
 from gui.buttons.Separator import Separator
 from gui.buttons.btn_save_options import BtnSaveOptions
-from gui.frames.check_box_generic import CheckBoxGeneric
+from gui.other_widgets.check_box_generic import CheckBoxGeneric
 from gui.other_widgets.combobox_n_jobs_option import NJobsOption
 
 
@@ -18,7 +18,7 @@ class OptionFrame(ctk.CTkFrame):
 
         Separator(self, "kolumny do treningu modelu:")
         self.current_collumns = self.options.COLUMNS
-        
+
         self.check_test = CheckBoxGeneric(self, "x", self.set_checkbox_options,
                                           'x', 1 if 'x' in self.current_collumns else 0)
         self.check_test = CheckBoxGeneric(self, "y", self.set_checkbox_options,
@@ -44,7 +44,7 @@ class OptionFrame(ctk.CTkFrame):
         setattr(self.options, option, value)
 
     def update_settings(self):
-        with open("D:\\szkoła\\semestr 6\\Projekt Zespołowy\\Klasyfikator-chmury-punktow\\settings.py", "w") as file:
+        with open("settings.py", "w") as file:
             file.write("# colors\n")
             file.write(f"BACKGROUND_COLOR = \"{self.options.BACKGROUND_COLOR}\"\n")
             file.write(f"WHITE = \"{self.options.WHITE}\"\n")
