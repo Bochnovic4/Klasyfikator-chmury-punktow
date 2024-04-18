@@ -258,3 +258,17 @@ class LasFileManager:
         self.classes = classes
 
         return normalized_points
+
+    def downsample_points(self, voxel_size=1, indices=None):
+        if indices is None:
+            indices = np.arange(len(self.points))
+        pcd = o3d.geometry.PointCloud()
+        pcd.points = o3d.utility.Vector3dVector(self.points[indices])
+        pcd.colors = o3d.utility.Vector3dVector(self.colors[indices])
+
+        downsampled_pcd = pcd.voxel_down_sample(voxel_size)
+
+        reduced_points = np.asarray(downsampled_pcd.points)
+        reduced_colors = np.asarray(downsampled_pcd.colors)
+
+        return reduced_points, reduced_colors
