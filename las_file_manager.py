@@ -238,23 +238,23 @@ class LasFileManager:
         )
 
     def csf(self, cloth_resolution=1):
-        WMII_normalize = height_normalization.PointCloudHeightNormalizer(self.points,
+        height_normalizer = height_normalization.PointCloudHeightNormalizer(self.points,
                                                                          self.classes,
                                                                          cloth_resolution=cloth_resolution)
-        WMII_normalize.csf()
-        classes = WMII_normalize.classes
+        height_normalizer.csf()
+        classes = height_normalizer.classes
         self.classes = classes
 
     def normalize_height(self, voxel_size=0.1, k=8, cloth_resolution=1):
-        WMII_normalize = height_normalization.PointCloudHeightNormalizer(self.points,
+        height_normalizer = height_normalization.PointCloudHeightNormalizer(self.points,
                                                                          self.classes,
                                                                          cloth_resolution=cloth_resolution,
                                                                          voxel_size=voxel_size,
                                                                          k=k)
-        WMII_normalize.normalize_height()
-        normalized_points = WMII_normalize.points
+        height_normalizer.normalize_height()
+        normalized_points = height_normalizer.points
 
-        classes = WMII_normalize.classes
+        classes = height_normalizer.classes
         self.classes = classes
 
         return normalized_points
