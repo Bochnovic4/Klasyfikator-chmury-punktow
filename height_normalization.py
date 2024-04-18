@@ -43,8 +43,6 @@ class PointCloudHeightNormalizer:
         return idx, reduce_ground_points
 
     def csf(self):
-        start_time = time.time()
-
         csf = CSF.CSF()
         csf.params.bSloopSmooth = False
         csf.params.cloth_resolution = self.cloth_resolution
@@ -59,10 +57,6 @@ class PointCloudHeightNormalizer:
 
         self.classes[ground] = [2]
         self.classes[non_ground] = [1]
-
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        print("Czas wykonania find_ground_and_non_ground_points:", elapsed_time, "sekund")
 
         return ground, non_ground
 
