@@ -1,6 +1,5 @@
 import numpy as np
 import open3d as o3d
-import time
 from pykdtree.kdtree import KDTree
 import CSF
 
