@@ -3,7 +3,7 @@ import settings
 import laspy
 import numpy as np
 import open3d as o3d
-import CSF
+import height_normalization
 
 
 class LasFileManager:
@@ -237,24 +237,24 @@ class LasFileManager:
             self.theta_angles_of_normal_vectors[non_ground_points_indices]
         )
 
-    def csf(self):
-        xyz = np.vstack((self.points[:, 0], self.points[:, 1],
-                         self.points[:, 2])).transpose()  # extract x, y, z and put into a list
+    def csf(self, cloth_resolution=1):
+        WMII_normalize = height_normalization.PointCloudHeightNormalizer(self.points,
+                                                                         self.classes,
+                                                                         cloth_resolution=cloth_resolution)
+        WMII_normalize.csf()
+        classes = WMII_normalize.classes
+        self.classes = classes
 
-        csf = CSF.CSF()
+    def normalize_height(self, voxel_size=0.1, k=8, cloth_resolution=1):
+        WMII_normalize = height_normalization.PointCloudHeightNormalizer(self.points,
+                                                                         self.classes,
+                                                                         cloth_resolution=cloth_resolution,
+                                                                         voxel_size=voxel_size,
+                                                                         k=k)
+        WMII_normalize.normalize_height()
+        normalized_points = WMII_normalize.points
 
-        # prameter settings
-        csf.params.bSloopSmooth = True
-        csf.params.cloth_resolution = 1
+        classes = WMII_normalize.classes
+        self.classes = classes
 
-        csf.setPointCloud(xyz)
-        ground = CSF.VecInt()  # a list to indicate the index of ground points after calculation
-        non_ground = CSF.VecInt()  # a list to indicate the index of non-ground points after calculation
-        csf.do_filtering(ground, non_ground)  # do actual filtering.
-        ground = np.array(ground)
-        non_ground = np.array(non_ground)
-
-        self.classes[ground] = [2]
-        self.classes[non_ground] = [0]
-
-        return ground, non_ground
+        return normalized_points
