@@ -240,7 +240,7 @@ class LasFileManager:
                                                                          self.classes.copy(),
                                                                          cloth_resolution=cloth_resolution)
         height_normalizer.csf()
-        classes = height_normalizer.normalized_classes
+        classes = height_normalizer.classes
         self.classes = classes
 
     def normalize_height(self, voxel_size=0.1, k=8, cloth_resolution=1):
@@ -251,9 +251,9 @@ class LasFileManager:
                                                                          k=k)
 
         height_normalizer.normalize_height()
-        normalized_points = height_normalizer.normalized_points
+        normalized_points = height_normalizer.points
 
-        classes = height_normalizer.normalized_classes
+        classes = height_normalizer.classes
         self.classes = classes
 
         return normalized_points
