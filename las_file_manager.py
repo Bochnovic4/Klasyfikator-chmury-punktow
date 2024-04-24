@@ -7,7 +7,7 @@ import height_normalization
 
 
 class LasFileManager:
-    def __init__(self, file_path, labels=None):
+    def __init__(self, file_path):
         self.file_path = file_path
         self.las_file = laspy.read(self.file_path)
         self.points = np.column_stack((self.las_file.x, self.las_file.y, self.las_file.z))
@@ -57,22 +57,19 @@ class LasFileManager:
         else:
             return "Point cloud is not created yet."
 
-    def filter_points(self, nb_neighbors=20, std_ratio=10.0, invert=False):
-        # Filter out noise from the point cloud using statistical outlier removal.
+    def filter_points(self, nb_neighbors=20, std_ratio=5.0, invert=False):
         o3d_points = self.convert_to_o3d_data()
-
-        # Perform the statistical outlier removal.
         cl, ind = o3d.geometry.PointCloud.remove_statistical_outlier(o3d_points, nb_neighbors=nb_neighbors,
                                                                      std_ratio=std_ratio)
-        # Select the points that remain after filtering.
         o3d_points = o3d_points.select_by_index(ind, invert=invert)
-        # Update the class's point, color, and classification data with the filtered results.
+
         self.points = np.asarray(o3d_points.points)
         self.classes = self.classes[ind]
+
         colors_array = np.asarray(o3d_points.colors) * 65535
         self.colors = colors_array.astype(np.uint16)
-        self.ground_points_indices = np.where(np.isin(self.classes, [11, 17, 25]))[0]
-        self.non_ground_points_indices = np.where(np.isin(self.classes, [0, 1, 13, 15, 19]))[0]
+
+        return ind
 
     def color_classified(self):
         classification_colors = settings.LABEL_COLORS
@@ -173,7 +170,7 @@ class LasFileManager:
         unique_classes = np.unique(self.classes)
         for cls in unique_classes:
             cls_mask = self.classes == cls
-            correct_per_class = np.sum(correct_classifications[cls_mask])
+            correct_per_class = np.sum(cls_mask & correct_classifications)
             total_per_class = np.sum(cls_mask)
             accuracy_per_class = correct_per_class / total_per_class if total_per_class else 0
             result += (
@@ -220,55 +217,45 @@ class LasFileManager:
         self.phi_angles_of_normal_vectors = phi_angles
         self.theta_angles_of_normal_vectors = theta_angles
 
-    def get_training_values(self, ground_indices=np.asarray([2])):
-        non_ground_points_indices = np.where(~np.isin(self.classes, ground_indices))[0]
-        ground_points = self.points[non_ground_points_indices]
-        x = ground_points[:, 0]
-        y = ground_points[:, 1]
+    def get_training_values(self):
+        ind = self.filter_points()
+        self.set_frequency()
+        self.set_angles_of_normal_vectors()
+        normalized_points = self.normalize_height()
         return (
-            self.classes[non_ground_points_indices],
-            x,
-            y,
-            self.las_file.intensity[non_ground_points_indices],
-            self.las_file.number_of_returns[non_ground_points_indices],
-            self.ball_density[non_ground_points_indices],
-            self.cylinder_density[non_ground_points_indices],
-            self.phi_angles_of_normal_vectors[non_ground_points_indices],
-            self.theta_angles_of_normal_vectors[non_ground_points_indices]
+            self.classes,
+            normalized_points[:, 0],  # x
+            normalized_points[:, 1],  # y
+            normalized_points[:, 2],  # z
+            self.las_file.intensity[ind],
+            self.las_file.number_of_returns[ind],
+            self.ball_density,
+            self.cylinder_density,
+            self.phi_angles_of_normal_vectors,
+            self.theta_angles_of_normal_vectors
         )
 
+
+
     def csf(self, cloth_resolution=1):
-        height_normalizer = height_normalization.PointCloudHeightNormalizer(self.points,
-                                                                         self.classes,
+        WMII_normalize = height_normalization.PointCloudHeightNormalizer(self.points.copy(),
+                                                                         self.classes.copy(),
                                                                          cloth_resolution=cloth_resolution)
-        height_normalizer.csf()
-        classes = height_normalizer.classes
+        WMII_normalize.csf()
+        classes = WMII_normalize.normalized_classes
         self.classes = classes
 
     def normalize_height(self, voxel_size=0.1, k=8, cloth_resolution=1):
-        height_normalizer = height_normalization.PointCloudHeightNormalizer(self.points,
-                                                                         self.classes,
+        WMII_normalize = height_normalization.PointCloudHeightNormalizer(self.points.copy(),
+                                                                         self.classes.copy(),
                                                                          cloth_resolution=cloth_resolution,
                                                                          voxel_size=voxel_size,
                                                                          k=k)
-        height_normalizer.normalize_height()
-        normalized_points = height_normalizer.points
 
-        classes = height_normalizer.classes
+        WMII_normalize.normalize_height()
+        normalized_points = WMII_normalize.normalized_points
+
+        classes = WMII_normalize.normalized_classes
         self.classes = classes
 
         return normalized_points
-
-    def downsample_points(self, voxel_size=1, indices=None):
-        if indices is None:
-            indices = np.arange(len(self.points))
-        pcd = o3d.geometry.PointCloud()
-        pcd.points = o3d.utility.Vector3dVector(self.points[indices])
-        pcd.colors = o3d.utility.Vector3dVector(self.colors[indices])
-
-        downsampled_pcd = pcd.voxel_down_sample(voxel_size)
-
-        reduced_points = np.asarray(downsampled_pcd.points)
-        reduced_colors = np.asarray(downsampled_pcd.colors)
-
-        return reduced_points, reduced_colors
