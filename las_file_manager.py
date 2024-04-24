@@ -234,28 +234,40 @@ class LasFileManager:
             self.phi_angles_of_normal_vectors,
             self.theta_angles_of_normal_vectors
         )
-
-
-
+    
     def csf(self, cloth_resolution=1):
-        WMII_normalize = height_normalization.PointCloudHeightNormalizer(self.points.copy(),
+        height_normalizer = height_normalization.PointCloudHeightNormalizer(self.points.copy(),
                                                                          self.classes.copy(),
                                                                          cloth_resolution=cloth_resolution)
-        WMII_normalize.csf()
-        classes = WMII_normalize.normalized_classes
+        height_normalizer.csf()
+        classes = height_normalizer.normalized_classes
         self.classes = classes
 
     def normalize_height(self, voxel_size=0.1, k=8, cloth_resolution=1):
-        WMII_normalize = height_normalization.PointCloudHeightNormalizer(self.points.copy(),
+        height_normalizer = height_normalization.PointCloudHeightNormalizer(self.points.copy(),
                                                                          self.classes.copy(),
                                                                          cloth_resolution=cloth_resolution,
                                                                          voxel_size=voxel_size,
                                                                          k=k)
 
-        WMII_normalize.normalize_height()
-        normalized_points = WMII_normalize.normalized_points
+        height_normalizer.normalize_height()
+        normalized_points = height_normalizer.normalized_points
 
-        classes = WMII_normalize.normalized_classes
+        classes = height_normalizer.normalized_classes
         self.classes = classes
 
         return normalized_points
+
+    def downsample_points(self, voxel_size=1, indices=None):
+        if indices is None:
+            indices = np.arange(len(self.points))
+        pcd = o3d.geometry.PointCloud()
+        pcd.points = o3d.utility.Vector3dVector(self.points[indices])
+        pcd.colors = o3d.utility.Vector3dVector(self.colors[indices])
+
+        downsampled_pcd = pcd.voxel_down_sample(voxel_size)
+
+        reduced_points = np.asarray(downsampled_pcd.points)
+        reduced_colors = np.asarray(downsampled_pcd.colors)
+
+        return reduced_points, reduced_colors
