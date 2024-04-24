@@ -13,17 +13,11 @@ class PointCloudHeightNormalizer:
         self.k = k
 
     def normalize_height(self):
-        start_time = time.time()
-
         ground_points_indices, non_ground_points_indices = self.csf()
         neighbors, reduce_ground_points = self.find_nearest_neighbors(ground_points_indices)
 
         min_heights = np.min(reduce_ground_points[:, 2][neighbors], axis=1)
         self.adjust_heights(min_heights, non_ground_points_indices, ground_points_indices)
-
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        print("Czas wykonania normalize_height:", elapsed_time, "sekund")
 
     def downsample_points(self, indices):
         pcd = o3d.geometry.PointCloud()
