@@ -12,8 +12,12 @@ class PointCloudHeightNormalizer:
         self.cloth_resolution = cloth_resolution
         self.k = k
 
-    def normalize_height(self):
-        ground_points_indices, non_ground_points_indices = self.csf()
+    def normalize_height(self, ground_classes=None):
+        if ground_classes is None:
+            ground_points_indices, non_ground_points_indices = self.csf()
+        else:
+            ground_points_indices = np.where(np.isin(self.classes, ground_classes))[0]
+            non_ground_points_indices = np.where(~np.isin(self.classes, ground_classes))[0]
         neighbors, reduce_ground_points = self.find_nearest_neighbors(ground_points_indices)
 
         min_heights = np.min(reduce_ground_points[:, 2][neighbors], axis=1)
