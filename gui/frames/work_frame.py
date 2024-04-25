@@ -2,11 +2,8 @@ import customtkinter as ctk
 import numpy as np
 
 from gui.buttons.Separator import Separator
-from gui.buttons.btn_classify import BtnClassify
-from gui.buttons.btn_generic import BtnCreator
+from gui.buttons.btn_top_generic import BtnGeneric
 from gui.buttons.btn_train_model import BtnTrainModel
-from gui.buttons.btn_visualize import BtnVisualize
-from gui.buttons.btn_visualize_color import BtnVisualizeColor
 from gui.other_widgets.check_box_generic import CheckBoxGeneric
 
 
@@ -18,21 +15,24 @@ class WorkFrame(ctk.CTkFrame):
         self.check_box = []
         self.model = model
 
-        self.btn_visualize = BtnVisualize(self, gui_custom.visualize, gui_custom.disable_all)
-        self.btn_visualize_color = BtnVisualizeColor(self, gui_custom.visualize_color, self.visualize_options,
-                                                     gui_custom.disable_all)
-        self.btn_filter_points = BtnCreator(self, "Usuń szum", las_manager.filter_points, gui_custom.disable_all,
+        self.btn_visualize = BtnGeneric(self, 'pokaż plik', gui_custom.visualize
+                                        , gui_custom.disable_all, gui_custom.enable_all, side='bottom')
+        self.btn_visualize_color = BtnGeneric(self, 'pokaż wybrane klasy', gui_custom.visualize_color,
+                                              gui_custom.disable_all, gui_custom.enable_all,
+                                              optional_argument=self.visualize_options, side='bottom')
+        self.btn_filter_points = BtnGeneric(self, 'Usuń szum', las_manager.filter_points, gui_custom.disable_all,
                                             gui_custom.enable_all)
-        self.btn_classify = BtnClassify(self, model.classify, las_manager.points, gui_custom.disable_all,
-                                        gui_custom.enable_all)
+        self.btn_classify = BtnGeneric(self, 'Klasyfikuj punkty', model.classify, las_manager.points,
+                                       gui_custom.disable_all, gui_custom.enable_all)
         self.btn_train_model = BtnTrainModel(self, model.train_model, las_manager.points, las_manager.classes,
                                              gui_custom.disable_all,
                                              gui_custom.enable_all)
         self.btn_visualize_color.configure(state="disabled")
+        self.btn_classify.configure(state="disabled")
 
         Separator(self, "wybierz klasy do wyświetlenia")
 
-        for x in np.unique(las_manager.las_file.classification):
+        for x in np.unique(las_manager.classes):
             self.check_box.append(CheckBoxGeneric(self, x, self.visualize_classes, x))
 
     def visualize_classes(self, las_class, value):
@@ -65,4 +65,3 @@ class WorkFrame(ctk.CTkFrame):
             self.btn_classify.configure(state='normal')
         if len(self.visualize_options) > 0:
             self.btn_visualize_color.configure(state='normal')
-

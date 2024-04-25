@@ -18,7 +18,7 @@ class Menu(ctk.CTkTabview):
         # widgets
         self.work_frame = WorkFrame(self.tab('Działaj'), parent, las_manager, model)
         self.save_frame = SaveFrame(self.tab('Zapisz'), parent, las_manager, model)
-        self.option_frame = OptionFrame(self.tab("Opcje"))
+        self.option_frame = OptionFrame(self.tab("Opcje"), parent)
 
     def disable(self):
         self.work_frame.disable()

@@ -1,20 +1,21 @@
 import customtkinter as ctk
 import settings
 from gui.buttons.Separator import Separator
-from gui.buttons.btn_save_options import BtnSaveOptions
+from gui.buttons.btn_top_generic import BtnGeneric
 from gui.other_widgets.check_box_generic import CheckBoxGeneric
 from gui.other_widgets.combobox_n_jobs_option import NJobsOption
 
 
 class OptionFrame(ctk.CTkFrame):
-    def __init__(self, parent):
+    def __init__(self, parent, gui_custom):
         super().__init__(master=parent, fg_color='transparent')
         self.pack(expand=True, fill='both')
         self.options = settings
 
         Separator(self, "ilość wykorzystywanych rdzeni do traningu modelu:")
         self.n_jobs_option = NJobsOption(self, self.set_options_temporary)
-        self.btn_save_options = BtnSaveOptions(self, self.update_settings)
+        self.btn_save_options = BtnGeneric(self, 'Zapisz opcje', self.update_settings,
+                                           gui_custom.disable_all, gui_custom.enable_all,side='bottom')
 
         Separator(self, "kolumny do treningu modelu:")
         self.current_collumns = self.options.COLUMNS

@@ -1,22 +1,22 @@
-import threading
-import tkinter as tk
+import scipy.spatial as spatial
+import settings
 import laspy
 import numpy as np
 import open3d as o3d
+import height_normalization
 
 
 class LasFileManager:
-    def __init__(self, file_path, labels=None):
-        # Initialize the class with the path to a LAS file.
+    def __init__(self, file_path):
         self.file_path = file_path
-        # Read the LAS file using laspy.
         self.las_file = laspy.read(self.file_path)
-        # Extract coordinates (x, y, z) of points from the LAS file and stack them into a numpy array.
         self.points = np.column_stack((self.las_file.x, self.las_file.y, self.las_file.z))
-        # Extract RGB colors of points from the LAS file and stack them into a numpy array.
         self.colors = np.column_stack((self.las_file.red, self.las_file.green, self.las_file.blue))
-        # Convert the classification of each point into a numpy array.
-        self.classes = labels if labels is not None else np.asarray(self.las_file.classification)
+        self.classes = np.asarray(self.las_file.classification)
+        self.ball_density = None
+        self.cylinder_density = None
+        self.phi_angles_of_normal_vectors = None
+        self.theta_angles_of_normal_vectors = None
 
     def write_las(self, output_path):
         # Create a new LAS file with the same version and point format as the input file.
@@ -25,80 +25,101 @@ class LasFileManager:
         header = laspy.LasHeader(version=version, point_format=point_format)
         las = laspy.LasData(header)
 
-        # Populate the new LAS file with modified point coordinates and colors.
         las.x, las.y, las.z = np.asarray(self.points).T
         las.red, las.green, las.blue = np.asarray(self.colors).T
-        # Populate the new LAS file with modified classifications.
         las.classification = np.asarray(self.classes)
 
-        # Write the modified LAS data to the specified output path.
         las.write(output_path)
 
-    def covert_to_o3d_data(self):
-        # Convert LAS point data to an Open3D point cloud format.
+    def convert_to_o3d_data(self, indices=None):
         o3d_points = o3d.geometry.PointCloud()
-        o3d_points.points = o3d.utility.Vector3dVector(self.points)
-        # If color data is available, convert and set the colors for the Open3D point cloud.
-        if len(self.colors) == len(self.points):
-            o3d_points.colors = o3d.utility.Vector3dVector(self.colors / 65535.0)
+
+        if indices is None:
+            points = self.points
+            colors = self.colors
+        else:
+            points = self.points[indices]
+            colors = self.colors[indices]
+
+        o3d_points.points = o3d.utility.Vector3dVector(points)
+        o3d_points.colors = o3d.utility.Vector3dVector(colors / 65535.0)
 
         return o3d_points
 
-    def filter_points(self, nb_neighbors=20, std_ratio=10.0, invert=False):
-        # Filter out noise from the point cloud using statistical outlier removal.
-        o3d_points = self.covert_to_o3d_data()
+    def visualize(self, indices=None):
+        if indices is None:
+            o3d_points = self.convert_to_o3d_data()
+        else:
+            o3d_points = self.convert_to_o3d_data(indices)
 
-        # Perform the statistical outlier removal.
+        if o3d_points.points:
+            o3d.visualization.draw_geometries([o3d_points])
+        else:
+            return "Point cloud is not created yet."
+
+    def filter_points(self, nb_neighbors=20, std_ratio=5.0, invert=False):
+        o3d_points = self.convert_to_o3d_data()
         cl, ind = o3d.geometry.PointCloud.remove_statistical_outlier(o3d_points, nb_neighbors=nb_neighbors,
                                                                      std_ratio=std_ratio)
-        # Select the points that remain after filtering.
         o3d_points = o3d_points.select_by_index(ind, invert=invert)
-        # Update the class's point, color, and classification data with the filtered results.
+
         self.points = np.asarray(o3d_points.points)
         self.classes = self.classes[ind]
+
         colors_array = np.asarray(o3d_points.colors) * 65535
         self.colors = colors_array.astype(np.uint16)
 
-    def color_classified(self):
-        classification_colors = {
-            0: [0, 0, 1],  # szum: Niebieski
-            1: [0.6, 0.4, 0],  # niesklasyfikowane: Brązowy
-            11: [0, 1, 0],  # trawa: zielony
-            13: [0, 0.3, 0],  # nw co to jest: Ciemnozielony
-            15: [0.65, 0.50, 0.39],  # Budynki: Orzechowy
-            17: [0.3, 0.3, 0.3],  # ulica: Ciemnoszary
-            19: [1, 0, 0],  # Przewody: Czerwony
-            25: [0.85, 0.85, 0.85]  # droga: Szary
-        }
+        return ind
 
-        # Initialize the color array for each point
-        colors = np.zeros((len(self.las_file.points), 3))
+    def color_classified(self):
+        classification_colors = settings.LABEL_COLORS
+        colors = np.zeros((len(self.points), 3))
+
         for classification, color in classification_colors.items():
-            indices = self.las_file.classification == classification
+            indices = self.classes == classification
             colors[indices] = np.asarray(color) * 65535
 
         self.colors = colors.astype(np.uint16)
 
+    def color_normalized_array(self, array):
+        def get_color(value):
+            if value < 0.5:
+                # Map from blue to green
+                green = 2 * value
+                blue = 1 - green
+                red = 0
+            else:
+                # Map from green to red
+                red = (value - 0.5) * 2
+                green = 1 - red
+                blue = 0
+            return red, green, blue
+
+        min_val, max_val = array.min(), array.max()
+        normalized_array = (array - min_val) / (max_val - min_val)
+        colors = np.array([get_color(value) for value in normalized_array])
+        self.colors[:, 0] = colors[:, 0] * 65535.0
+        self.colors[:, 1] = colors[:, 1] * 65535.0
+        self.colors[:, 2] = colors[:, 2] * 65535.0
+
     def class_informations(self):
         result = {
-            "Plik Las":
-                str(self.file_path),
             "Liczba punktów":
                 str(len(self.points)),
             "klasyfikacje":
                 str(np.unique(self.classes)),
             "min x":
-                str(np.min(self.points[0:])),
+                str(np.min(self.points[:, 0])),
             "max x":
-                str(np.max(self.points[0:])),
+                str(np.max(self.points[:, 0])),
             "min y":
-                str(np.min(self.points[1:])),
+                str(np.min(self.points[:, 1])),
             "max y":
-                str(np.max(self.points[1:])),
+                str(np.max(self.points[:, 1])),
             "min z":
-                str(np.min(self.points[2:])),
+                str(np.min(self.points[:, 2])),
             "max z":
-                str(np.max(self.points[2:])),
+                str(np.max(self.points[:, 2])),
         }
         return result
 
@@ -135,14 +156,11 @@ class LasFileManager:
         }
         return result
 
-    def compare_classifications(self, other):
-        if not isinstance(other, LasFileManager):
-            raise ValueError("Argument musi być instancją LasFileManager")
+    def compare_classifications(self):
+        if len(self.classes) != len(self.las_file.classes):
+            return "Obiekty muszą mieć tę samą liczbę punktów do porównania"
 
-        if len(self.classes) != len(other.classes):
-            raise ValueError("Obiekty muszą mieć tę samą liczbę punktów do porównania")
-
-        correct_classifications = self.classes == other.classes
+        correct_classifications = self.classes == self.las_file.classes
         total_correct = np.sum(correct_classifications)
         total_points = len(self.classes)
         accuracy = total_correct / total_points
@@ -152,7 +170,7 @@ class LasFileManager:
         unique_classes = np.unique(self.classes)
         for cls in unique_classes:
             cls_mask = self.classes == cls
-            correct_per_class = np.sum(correct_classifications[cls_mask])
+            correct_per_class = np.sum(cls_mask & correct_classifications)
             total_per_class = np.sum(cls_mask)
             accuracy_per_class = correct_per_class / total_per_class if total_per_class else 0
             result += (
@@ -161,5 +179,92 @@ class LasFileManager:
 
         return result
 
-    def __str__(self):
-        return str(self.las_file)
+    def set_frequency(self):
+        def get_frequency_of_neighbors(points, radius):
+            tree = spatial.cKDTree(points)
+
+            neighbors = tree.query_ball_tree(tree, radius)
+            frequency_of_neighbors = np.array([len(sublist) for sublist in neighbors])
+
+            return frequency_of_neighbors
+
+        self.ball_density = get_frequency_of_neighbors(self.points, 0.2)
+        self.cylinder_density = get_frequency_of_neighbors(self.points[:, :2], 0.05)
+
+    def set_angles_of_normal_vectors(self):
+        def calculate_phi_angle_of_normals(vertex_normals):
+            z_axis = vertex_normals[:, 2]
+            normal_vector_length = np.linalg.norm(vertex_normals)
+            angle = np.arccos(z_axis / normal_vector_length)
+            return angle
+
+        def calculate_theta_angle_of_normals(vertex_normals):
+            x = vertex_normals[:, 0]
+            y = vertex_normals[:, 1]
+            angle = np.arctan(y, x)
+
+            return angle
+
+        o3d_points = self.convert_to_o3d_data()
+        o3d_points.estimate_normals(
+            search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=0.2, max_nn=100))
+        o3d_points.orient_normals_to_align_with_direction()
+        vertex_normals = np.asarray(o3d_points.normals)
+
+        phi_angles = calculate_phi_angle_of_normals(vertex_normals)
+        theta_angles = calculate_theta_angle_of_normals(vertex_normals)
+
+        self.phi_angles_of_normal_vectors = phi_angles
+        self.theta_angles_of_normal_vectors = theta_angles
+
+    def get_training_values(self):
+        ind = self.filter_points()
+        self.set_frequency()
+        self.set_angles_of_normal_vectors()
+        normalized_points = self.normalize_height(ground_classes=[11, 17, 25])
+        return (
+            self.classes,
+            normalized_points[:, 0],  # x
+            normalized_points[:, 1],  # y
+            normalized_points[:, 2],  # z
+            self.las_file.intensity[ind],
+            self.las_file.number_of_returns[ind],
+            self.ball_density,
+            self.cylinder_density,
+            self.phi_angles_of_normal_vectors,
+            self.theta_angles_of_normal_vectors
+        )
+
+    def csf(self, cloth_resolution=1):
+        height_normalizer = height_normalization.PointCloudHeightNormalizer(self.points.copy(),
+                                                                            self.classes.copy(),
+                                                                            cloth_resolution=cloth_resolution)
+        height_normalizer.csf()
+        classes = height_normalizer.classes
+        self.classes = classes
+
+    def normalize_height(self, voxel_size=0.1, k=8, cloth_resolution=1, ground_classes=None):
+        height_normalizer = height_normalization.PointCloudHeightNormalizer(self.points.copy(),
+                                                                            self.classes.copy(),
+                                                                            cloth_resolution=cloth_resolution,
+                                                                            voxel_size=voxel_size,
+                                                                            k=k)
+
+        height_normalizer.normalize_height(ground_classes)
+        normalized_points = height_normalizer.points
+
+        return normalized_points
+
+    def downsample_points(self, voxel_size=1, indices=None):
+        if indices is None:
+            indices = np.arange(len(self.points))
+        pcd = o3d.geometry.PointCloud()
+        pcd.points = o3d.utility.Vector3dVector(self.points[indices])
+        pcd.colors = o3d.utility.Vector3dVector(self.colors[indices])
+
+        downsampled_pcd = pcd.voxel_down_sample(voxel_size)
+
+        reduced_points = np.asarray(downsampled_pcd.points)
+        reduced_colors = np.asarray(downsampled_pcd.colors)
+
+        return reduced_points, reduced_colors

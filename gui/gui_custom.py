@@ -63,17 +63,7 @@ class App(ctk.CTk):
         self.menu.enable()
         self.update_frame_data()
 
-# make visualization in another thread
     def visualize(self):
-        thread = threading.Thread(target=self.visualize_in_thread)
-        thread.start()
-
-    # make visualization by class in another thread
-    def visualize_color(self, color):
-        thread = threading.Thread(target=self.visualize_classified, args=(color,))
-        thread.start()
-
-    def visualize_in_thread(self):
         o3d_points = self.las_manager.convert_to_o3d_data()
 
         if self.las_manager.points is not None:
@@ -81,10 +71,7 @@ class App(ctk.CTk):
         else:
             print("Point cloud is not created yet.")
 
-        self.enable_all()
-
-# visualize selected classes
-    def visualize_classified(self, selected_classes):
+    def visualize_color(self, selected_classes):
         classification_colors = {
             0: [0, 0, 1],  # szum: Niebieski
             1: [0.6, 0.4, 0],  # niesklasyfikowane: Brązowy
@@ -96,15 +83,14 @@ class App(ctk.CTk):
             25: [0.85, 0.85, 0.85]  # droga: Szary
         }
 
-        masks = [self.las_manager.las_file.classification == c for c in selected_classes]
+        masks = [self.las_manager.classes == c for c in selected_classes]
 
         pcd_o3d = o3d.geometry.PointCloud()
 
         for i, mask in enumerate(masks):
-            xyz_t = np.vstack((self.las_manager.las_file.x[mask],
-                               self.las_manager.las_file.y[mask], self.las_manager.las_file.z[mask]))
+            xyz_t = self.las_manager.points[mask]
             pcd_temp = o3d.geometry.PointCloud()
-            pcd_temp.points = o3d.utility.Vector3dVector(xyz_t.transpose())
+            pcd_temp.points = o3d.utility.Vector3dVector(xyz_t.tolist())
             classification = selected_classes[i]
             if classification in classification_colors:
                 color = classification_colors[classification]
@@ -118,5 +104,3 @@ class App(ctk.CTk):
         pcd_o3d.translate(-pcd_center)
 
         o3d.visualization.draw_geometries([pcd_o3d])
-
-        self.enable_all()
