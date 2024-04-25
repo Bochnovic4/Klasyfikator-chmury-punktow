@@ -237,24 +237,21 @@ class LasFileManager:
     
     def csf(self, cloth_resolution=1):
         height_normalizer = height_normalization.PointCloudHeightNormalizer(self.points.copy(),
-                                                                         self.classes.copy(),
-                                                                         cloth_resolution=cloth_resolution)
+                                                                            self.classes.copy(),
+                                                                            cloth_resolution=cloth_resolution)
         height_normalizer.csf()
         classes = height_normalizer.classes
         self.classes = classes
 
     def normalize_height(self, voxel_size=0.1, k=8, cloth_resolution=1):
         height_normalizer = height_normalization.PointCloudHeightNormalizer(self.points.copy(),
-                                                                         self.classes.copy(),
-                                                                         cloth_resolution=cloth_resolution,
-                                                                         voxel_size=voxel_size,
-                                                                         k=k)
+                                                                            self.classes.copy(),
+                                                                            cloth_resolution=cloth_resolution,
+                                                                            voxel_size=voxel_size,
+                                                                            k=k)
 
         height_normalizer.normalize_height()
         normalized_points = height_normalizer.points
-
-        classes = height_normalizer.classes
-        self.classes = classes
 
         return normalized_points
 
