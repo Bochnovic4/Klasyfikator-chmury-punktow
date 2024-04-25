@@ -74,11 +74,11 @@ class LasFileManager:
     def color_classified(self):
         classification_colors = settings.LABEL_COLORS
         colors = np.zeros((len(self.points), 3))
-
+        
         for classification, color in classification_colors.items():
             indices = self.classes == classification
             colors[indices] = np.asarray(color) * 65535
-
+            
         self.colors = colors.astype(np.uint16)
 
     def color_normalized_array(self, array):
@@ -234,7 +234,7 @@ class LasFileManager:
             self.phi_angles_of_normal_vectors,
             self.theta_angles_of_normal_vectors
         )
-
+    
     def csf(self, cloth_resolution=1):
         height_normalizer = height_normalization.PointCloudHeightNormalizer(self.points.copy(),
                                                                             self.classes.copy(),
