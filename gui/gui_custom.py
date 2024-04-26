@@ -1,4 +1,3 @@
-import threading
 import open3d as o3d
 import customtkinter as ctk
 
@@ -47,6 +46,7 @@ class App(ctk.CTk):
 
     def update_frame_data(self):
         # Metoda do aktualizacji danych w klasie Frame
+
         new_data = self.las_manager.class_informations()
         self.panel.update_data(new_data)
 
@@ -62,18 +62,43 @@ class App(ctk.CTk):
         self.update_frame_data()
 
     def visualize(self):
-        def visualize_in_thread():
-            # Convert LAS data to Open3D point cloud and visualize it.
-            o3d_points = self.las_manager.convert_to_o3d_data()
+        o3d_points = self.las_manager.convert_to_o3d_data()
 
-            if self.las_manager.points is not None:
-                o3d.visualization.draw_geometries([o3d_points])
+        if self.las_manager.points is not None:
+            o3d.visualization.draw_geometries([o3d_points])
+        else:
+            print("Point cloud is not created yet.")
+
+    def visualize_color(self, selected_classes):
+        classification_colors = {
+            0: [0, 0, 1],  # szum: Niebieski
+            1: [0.6, 0.4, 0],  # niesklasyfikowane: Brązowy
+            11: [0, 1, 0],  # trawa: zielony
+            13: [0, 0.3, 0],  # nw co to jest: Ciemnozielony
+            15: [0.65, 0.50, 0.39],  # Budynki: Orzechowy
+            17: [0.3, 0.3, 0.3],  # ulica: Ciemnoszary
+            19: [1, 0, 0],  # Przewody: Czerwony
+            25: [0.85, 0.85, 0.85]  # droga: Szary
+        }
+
+        masks = [self.las_manager.classes == c for c in selected_classes]
+
+        pcd_o3d = o3d.geometry.PointCloud()
+
+        for i, mask in enumerate(masks):
+            xyz_t = self.las_manager.points[mask]
+            pcd_temp = o3d.geometry.PointCloud()
+            pcd_temp.points = o3d.utility.Vector3dVector(xyz_t.tolist())
+            classification = selected_classes[i]
+            if classification in classification_colors:
+                color = classification_colors[classification]
             else:
-                print("Point cloud is not created yet.")
+                color = [0, 0, 0]
+            pcd_temp.paint_uniform_color(color)
+            pcd_o3d += pcd_temp
 
-            # Po zamknięciu okna Open3D, wywołaj funkcję enable_func, aby ponownie włączyć przyciski.
-            self.enable_all()
+        pcd_center = pcd_o3d.get_center()
 
-        # Uruchomienie procesu w osobnym wątku
-        thread = threading.Thread(target=visualize_in_thread)
-        thread.start()
+        pcd_o3d.translate(-pcd_center)
+
+        o3d.visualization.draw_geometries([pcd_o3d])

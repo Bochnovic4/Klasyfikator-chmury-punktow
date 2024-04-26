@@ -1,5 +1,6 @@
 import customtkinter as ctk
 
+from gui.frames.option_frame import OptionFrame
 from gui.frames.save_frame import SaveFrame
 from gui.frames.work_frame import WorkFrame
 
@@ -12,10 +13,12 @@ class Menu(ctk.CTkTabview):
         # tabs
         self.add('Działaj')
         self.add('Zapisz')
+        self.add('Opcje')
 
         # widgets
         self.work_frame = WorkFrame(self.tab('Działaj'), parent, las_manager, model)
         self.save_frame = SaveFrame(self.tab('Zapisz'), parent, las_manager, model)
+        self.option_frame = OptionFrame(self.tab("Opcje"), parent)
 
     def disable(self):
         self.work_frame.disable()
