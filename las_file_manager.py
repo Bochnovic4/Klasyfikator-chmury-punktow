@@ -46,7 +46,10 @@ class LasFileManager:
 
         return o3d_points
 
-    def visualize(self, indices=None):
+    def visualize(self, indices=None, classes=None):
+        if classes is not None:
+            indices = np.where(np.isin(self.classes, classes))[0]
+
         if indices is None:
             o3d_points = self.convert_to_o3d_data()
         else:

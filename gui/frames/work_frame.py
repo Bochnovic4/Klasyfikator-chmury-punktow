@@ -42,7 +42,6 @@ class WorkFrame(ctk.CTkFrame):
                 self.btn_visualize_color.configure(state="disabled")
         else:
             self.visualize_options.append(las_class)
-            self.visualize_options.sort()
             if len(self.visualize_options) > 0:
                 self.btn_visualize_color.configure(state="normal")
 
