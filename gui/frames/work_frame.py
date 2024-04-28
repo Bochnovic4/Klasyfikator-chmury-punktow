@@ -22,9 +22,9 @@ class WorkFrame(ctk.CTkFrame):
                                               optional_argument=self.visualize_options, side='bottom')
         self.btn_filter_points = BtnGeneric(self, 'Usuń szum', las_manager.filter_points, gui_custom.disable_all,
                                             gui_custom.enable_all)
-        self.btn_classify = BtnGeneric(self, 'Klasyfikuj punkty', model.classify, las_manager.points,
-                                       gui_custom.disable_all, gui_custom.enable_all)
-        self.btn_train_model = BtnTrainModel(self, model.train_model, las_manager.points, las_manager.classes,
+        self.btn_classify = BtnGeneric(self, 'Klasyfikuj punkty', model.classify,
+                                       gui_custom.disable_all, gui_custom.enable_all, optional_argument=las_manager)
+        self.btn_train_model = BtnTrainModel(self, model.train_model, las_manager,
                                              gui_custom.disable_all,
                                              gui_custom.enable_all)
         self.btn_visualize_color.configure(state="disabled")
@@ -60,7 +60,7 @@ class WorkFrame(ctk.CTkFrame):
         self.btn_train_model.configure(state='normal')
         for x in self.check_box:
             x.configure(state='normal')
-        if self.model.model is not None:
+        if self.model.is_enabled == True:
             self.btn_classify.configure(state='normal')
         if len(self.visualize_options) > 0:
             self.btn_visualize_color.configure(state='normal')

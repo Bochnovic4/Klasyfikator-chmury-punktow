@@ -27,7 +27,18 @@ LABEL_COLORS = {
 }
 
 # Liczba rdzeni do traningu modelu
-N_JOBS = -1
+N_JOBS = None
+
+# Maksymalna glebokosc drzewa
+MAX_DEPTH = None
 
 # kolumny do treningu modelu
-COLUMNS = ['x', 'y', 'z']
+COLUMNS = ['z',
+           'intensity',
+           'ball_density',
+           'cylinder_density',
+           'phi_angles_of_normal_vectors',
+           'theta_angles_of_normal_vectors',
+           'min_height',
+           'max_height',
+           'mean_height']

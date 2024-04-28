@@ -2,29 +2,45 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 import joblib
+import numpy as np
 
-from settings import N_JOBS, COLUMNS
+from las_file_manager import LasFileManager
+from settings import N_JOBS, COLUMNS, MAX_DEPTH
 
 
 class CloudPointClassifier:
     def __init__(self):
-        self.model = None
+        self.model = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=N_JOBS, max_depth=MAX_DEPTH)
+        self.is_enabled = False
 
-    def classify(self, points):
-        df = pd.DataFrame(points, columns=COLUMNS)
-        predictions = self.model.predict(df)
-        return predictions
+    def classify(self, las_file_manager):
+        (z, intensity, ball_density,
+         cylinder_density, phi, theta,
+         min_height, max_height, mean_height) = las_file_manager.get_training_values()
 
-    def train_model(self, features, labels):
+        features = np.vstack((z, intensity, ball_density,
+                              cylinder_density, phi, theta,
+                              min_height, max_height, mean_height)).T
+        features = pd.DataFrame(features, columns=COLUMNS)
+        las_file_manager.classes = self.model.predict(features)
+
+    def train_model(self, las_file_manager):
+        (z, intensity, ball_density,
+         cylinder_density, phi, theta,
+         min_height, max_height, mean_height) = las_file_manager.get_training_values()
+        features = np.vstack((z, intensity, ball_density,
+                              cylinder_density, phi, theta,
+                              min_height, max_height, mean_height)).T
         features = pd.DataFrame(features, columns=COLUMNS)
         features = features.apply(pd.to_numeric, errors='coerce')
-        X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
-
-        self.model = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=N_JOBS)
-        self.model.fit(X_train, y_train)
+        x_train, x_test, y_train, y_test = train_test_split(features, las_file_manager.classes, test_size=0.2,
+                                                            random_state=42)
+        self.model.fit(x_train, y_train)
+        self.is_enabled = True
 
     def save(self, filename):
         joblib.dump(self.model, filename)
 
     def load(self, filename):
         self.model = joblib.load(filename)
+        self.is_enabled = True

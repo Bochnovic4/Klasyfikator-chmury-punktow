@@ -77,11 +77,11 @@ class LasFileManager:
     def color_classified(self):
         classification_colors = settings.LABEL_COLORS
         colors = np.zeros((len(self.points), 3))
-        
+
         for classification, color in classification_colors.items():
             indices = self.classes == classification
             colors[indices] = np.asarray(color) * 65535
-            
+
         self.colors = colors.astype(np.uint16)
 
     def color_normalized_array(self, array):
@@ -225,19 +225,22 @@ class LasFileManager:
         self.set_frequency()
         self.set_angles_of_normal_vectors()
         normalized_points = self.normalize_height(ground_classes=[11, 17, 25])
+        min_height, max_height, mean_height = self.set_min_max_mean_height(normalized_points)
         return (
-            self.classes,
-            normalized_points[:, 0],  # x
-            normalized_points[:, 1],  # y
+            # normalized_points[:, 0],  # x
+            # normalized_points[:, 1],  # y
             normalized_points[:, 2],  # z
             self.las_file.intensity[ind],
-            self.las_file.number_of_returns[ind],
+            # self.las_file.number_of_returns[ind],
             self.ball_density,
             self.cylinder_density,
             self.phi_angles_of_normal_vectors,
-            self.theta_angles_of_normal_vectors
+            self.theta_angles_of_normal_vectors,
+            min_height,
+            max_height,
+            mean_height
         )
-    
+
     def csf(self, cloth_resolution=1):
         height_normalizer = height_normalization.PointCloudHeightNormalizer(self.points.copy(),
                                                                             self.classes.copy(),
@@ -289,5 +292,4 @@ class LasFileManager:
 
         mean_height = sum_height / num_neighbors
 
-        self.min_height, self.max_height, self.mean_height = min_height, max_height, mean_height
-    
+        return min_height, max_height, mean_height
