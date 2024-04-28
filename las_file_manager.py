@@ -13,10 +13,6 @@ class LasFileManager:
         self.points = np.column_stack((self.las_file.x, self.las_file.y, self.las_file.z))
         self.colors = np.column_stack((self.las_file.red, self.las_file.green, self.las_file.blue))
         self.classes = np.asarray(self.las_file.classification)
-        self.ball_density = None
-        self.cylinder_density = None
-        self.phi_angles_of_normal_vectors = None
-        self.theta_angles_of_normal_vectors = None
 
     def write_las(self, output_path):
         # Create a new LAS file with the same version and point format as the input file.
@@ -191,8 +187,10 @@ class LasFileManager:
 
             return frequency_of_neighbors
 
-        self.ball_density = get_frequency_of_neighbors(self.points, 0.2)
-        self.cylinder_density = get_frequency_of_neighbors(self.points[:, :2], 0.05)
+        ball_density = get_frequency_of_neighbors(self.points, 0.2)
+        cylinder_density = get_frequency_of_neighbors(self.points[:, :2], 0.05)
+
+        return ball_density, cylinder_density
 
     def set_angles_of_normal_vectors(self):
         def calculate_phi_angle_of_normals(vertex_normals):
@@ -217,14 +215,16 @@ class LasFileManager:
         phi_angles = calculate_phi_angle_of_normals(vertex_normals)
         theta_angles = calculate_theta_angle_of_normals(vertex_normals)
 
-        self.phi_angles_of_normal_vectors = phi_angles
-        self.theta_angles_of_normal_vectors = theta_angles
+        phi_angles_of_normal_vectors = phi_angles
+        theta_angles_of_normal_vectors = theta_angles
 
-    def get_training_values(self):
+        return phi_angles_of_normal_vectors, theta_angles_of_normal_vectors
+
+    def get_training_values(self, ground_classes):
         ind = self.filter_points()
-        self.set_frequency()
-        self.set_angles_of_normal_vectors()
-        normalized_points = self.normalize_height(ground_classes=[11, 17, 25])
+        ball_density, cylinder_density = self.set_frequency()
+        phi_angles_of_normal_vectors, theta_angles_of_normal_vectors = self.set_angles_of_normal_vectors()
+        normalized_points = self.normalize_height(ground_classes=ground_classes)
         min_height, max_height, mean_height = self.set_min_max_mean_height(normalized_points)
         return (
             # normalized_points[:, 0],  # x
@@ -232,10 +232,10 @@ class LasFileManager:
             normalized_points[:, 2],  # z
             self.las_file.intensity[ind],
             # self.las_file.number_of_returns[ind],
-            self.ball_density,
-            self.cylinder_density,
-            self.phi_angles_of_normal_vectors,
-            self.theta_angles_of_normal_vectors,
+            ball_density,
+            cylinder_density,
+            phi_angles_of_normal_vectors,
+            theta_angles_of_normal_vectors,
             min_height,
             max_height,
             mean_height
