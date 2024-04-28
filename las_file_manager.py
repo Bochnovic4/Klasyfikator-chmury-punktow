@@ -271,3 +271,23 @@ class LasFileManager:
         reduced_colors = np.asarray(downsampled_pcd.colors)
 
         return reduced_points, reduced_colors
+
+    def set_min_max_mean_height(self, normalized_points):
+        points = normalized_points[:, :2]
+        tree = spatial.cKDTree(points)
+        neighbors = tree.query_ball_tree(tree, 0.05)
+
+        num_neighbors = np.array([len(sublist) for sublist in neighbors])
+
+        flattened_indices = np.concatenate(neighbors)
+        heights = normalized_points[flattened_indices, 2]
+
+        indices = np.concatenate(([0], np.cumsum(num_neighbors)[:-1]))
+        min_height = np.minimum.reduceat(heights, indices)
+        max_height = np.maximum.reduceat(heights, indices)
+        sum_height = np.add.reduceat(heights, indices)
+
+        mean_height = sum_height / num_neighbors
+
+        self.min_height, self.max_height, self.mean_height = min_height, max_height, mean_height
+    
