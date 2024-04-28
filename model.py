@@ -23,10 +23,10 @@ class CloudPointClassifier:
         features = pd.DataFrame(features, columns=COLUMNS)
         las_file_manager.classes = self.model.predict(features)
 
-    def train_model(self, las_file_manager):
+    def train_model(self, las_file_manager, ground_classes):
         (z, intensity, ball_density,
          cylinder_density, phi, theta,
-         min_height, max_height, mean_height) = las_file_manager.get_training_values()
+         min_height, max_height, mean_height) = las_file_manager.get_training_values(ground_classes)
         features = np.vstack((z, intensity, ball_density,
                               cylinder_density, phi, theta,
                               min_height, max_height, mean_height)).T
