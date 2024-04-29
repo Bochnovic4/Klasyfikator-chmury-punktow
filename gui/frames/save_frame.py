@@ -41,5 +41,5 @@ class SaveFrame(ctk.CTkFrame):
         self.btn_save_as.configure(state='normal')
         self.btn_load_model.configure(state='normal')
         self.btn_close.configure(state='normal')
-        if self.model.model is not None:
+        if self.model.is_enabled:
             self.btn_save_model.configure(state='normal')

@@ -60,7 +60,7 @@ class WorkFrame(ctk.CTkFrame):
         self.btn_train_model.configure(state='normal')
         for x in self.check_box:
             x.configure(state='normal')
-        if self.model.is_enabled == True:
+        if self.model.is_enabled:
             self.btn_classify.configure(state='normal')
         if len(self.visualize_options) > 0:
             self.btn_visualize_color.configure(state='normal')
