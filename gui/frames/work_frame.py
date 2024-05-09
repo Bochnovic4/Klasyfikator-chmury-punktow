@@ -15,9 +15,9 @@ class WorkFrame(ctk.CTkFrame):
         self.check_box = []
         self.model = model
 
-        self.btn_visualize = BtnGeneric(self, 'pokaż plik', gui_custom.visualize
+        self.btn_visualize = BtnGeneric(self, 'pokaż plik', las_manager.visualize
                                         , gui_custom.disable_all, gui_custom.enable_all, side='bottom')
-        self.btn_visualize_color = BtnGeneric(self, 'pokaż wybrane klasy', gui_custom.visualize_color,
+        self.btn_visualize_color = BtnGeneric(self, 'pokaż wybrane klasy', las_manager.color_classified,
                                               gui_custom.disable_all, gui_custom.enable_all,
                                               optional_argument=self.visualize_options, side='bottom')
         self.btn_filter_points = BtnGeneric(self, 'Usuń szum', las_manager.filter_points, gui_custom.disable_all,
