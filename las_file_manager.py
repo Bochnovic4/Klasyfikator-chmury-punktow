@@ -70,7 +70,7 @@ class LasFileManager:
 
         return ind
 
-    def color_classified(self):
+    def color_classified(self, selected_classes=None):
         classification_colors = settings.LABEL_COLORS
         colors = np.zeros((len(self.points), 3))
 
@@ -79,6 +79,8 @@ class LasFileManager:
             colors[indices] = np.asarray(color) * 65535
 
         self.colors = colors.astype(np.uint16)
+        if selected_classes is not None:
+            self.visualize(classes=selected_classes)
 
     def color_normalized_array(self, array):
         def get_color(value):

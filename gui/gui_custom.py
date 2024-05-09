@@ -60,10 +60,3 @@ class App(ctk.CTk):
         self.menu.configure(state='normal')
         self.menu.enable()
         self.update_frame_data()
-
-    def visualize(self):
-        self.las_manager.visualize()
-
-    def visualize_color(self, selected_classes):
-        self.las_manager.color_classified()
-        self.las_manager.visualize(classes=selected_classes)
