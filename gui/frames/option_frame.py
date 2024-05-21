@@ -1,7 +1,7 @@
 import customtkinter as ctk
 import settings
 from gui.buttons.Separator import Separator
-from gui.buttons.btn_top_generic import BtnGeneric
+from gui.buttons.btn_generic import BtnGeneric
 from gui.other_widgets.entry_int import IntegerEntry
 from gui.other_widgets.check_box_generic import CheckBoxGeneric
 from gui.other_widgets.combobox_n_jobs_option import NJobsOption

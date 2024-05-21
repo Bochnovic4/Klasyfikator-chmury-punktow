@@ -222,7 +222,7 @@ class LasFileManager:
 
         return phi_angles_of_normal_vectors, theta_angles_of_normal_vectors
 
-    def get_model_values(self, ground_classes=None):
+    def get_training_values(self, ground_classes=None):
         ind = self.filter_points()
         ball_density, cylinder_density = self.set_frequency()
         phi_angles_of_normal_vectors, theta_angles_of_normal_vectors = self.set_angles_of_normal_vectors()
@@ -232,9 +232,9 @@ class LasFileManager:
             # normalized_points[:, 0],  # x
             # normalized_points[:, 1],  # y
             normalized_points[:, 2],  # z
-            self.las_file.intensity[ind],
+            # self.las_file.intensity[ind],
             # self.las_file.number_of_returns[ind],
-            ball_density,
+            # ball_density,
             cylinder_density,
             phi_angles_of_normal_vectors,
             theta_angles_of_normal_vectors,

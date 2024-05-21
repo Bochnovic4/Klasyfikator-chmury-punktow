@@ -2,7 +2,7 @@ import customtkinter as ctk
 import numpy as np
 
 from gui.buttons.Separator import Separator
-from gui.buttons.btn_top_generic import BtnGeneric
+from gui.buttons.btn_generic import BtnGeneric
 from gui.buttons.btn_train_model import BtnTrainModel
 from gui.other_widgets.check_box_generic import CheckBoxGeneric
 
@@ -11,6 +11,7 @@ class WorkFrame(ctk.CTkFrame):
     def __init__(self, parent, gui_custom, las_manager, model):
         super().__init__(master=parent, fg_color='transparent')
         self.pack(expand=True, fill='both')
+        self.las_manager = las_manager
         self.visualize_options = []
         self.check_box = []
         self.model = model
@@ -31,8 +32,11 @@ class WorkFrame(ctk.CTkFrame):
         self.btn_classify.configure(state="disabled")
 
         Separator(self, "wybierz klasy do wyświetlenia")
+        self.generate_checkbox()
 
-        for x in np.unique(las_manager.classes):
+    def generate_checkbox(self):
+        self.check_box.clear()
+        for x in np.unique(self.las_manager.classes):
             self.check_box.append(CheckBoxGeneric(self, x, self.visualize_classes, x))
 
     def visualize_classes(self, las_class, value):
@@ -64,3 +68,6 @@ class WorkFrame(ctk.CTkFrame):
             self.btn_classify.configure(state='normal')
         if len(self.visualize_options) > 0:
             self.btn_visualize_color.configure(state='normal')
+
+        if len(np.unique(self.las_manager.classes)) != len(self.check_box):
+            self.generate_checkbox()

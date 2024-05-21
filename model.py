@@ -13,11 +13,11 @@ class CloudPointClassifier:
         self.is_enabled = False
 
     def classify(self, las_file_manager):
-        (z, intensity, ball_density,
+        (z,
          cylinder_density, phi, theta,
          min_height, max_height, mean_height) = las_file_manager.get_training_values()
 
-        features = np.vstack((z, intensity, ball_density,
+        features = np.vstack((z,
                               cylinder_density, phi, theta,
                               min_height, max_height, mean_height)).T
         features = pd.DataFrame(features, columns=COLUMNS)

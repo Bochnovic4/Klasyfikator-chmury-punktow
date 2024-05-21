@@ -3,7 +3,7 @@ from gui.buttons.Separator import Separator
 from gui.buttons.btn_close import BtnClose
 from gui.buttons.btn_load_model import BtnLoadModel
 from gui.buttons.btn_save_model import BtnSaveModel
-from gui.buttons.btn_top_generic import BtnGeneric
+from gui.buttons.btn_generic import BtnGeneric
 from gui.buttons.bts_save_as import BtnSaveAs
 
 
