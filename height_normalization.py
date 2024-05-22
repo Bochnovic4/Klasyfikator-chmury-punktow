@@ -41,7 +41,7 @@ class PointCloudHeightNormalizer:
 
     def csf(self):
         csf = CSF.CSF()
-        csf.params.bSloopSmooth = False
+        csf.params.bSloopSmooth = True
         csf.params.cloth_resolution = self.cloth_resolution
         csf.setPointCloud(self.points)
 
