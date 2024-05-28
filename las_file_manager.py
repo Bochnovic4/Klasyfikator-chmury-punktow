@@ -189,10 +189,9 @@ class LasFileManager:
 
             return frequency_of_neighbors
 
-        ball_density = get_frequency_of_neighbors(self.points, 0.2)
         cylinder_density = get_frequency_of_neighbors(self.points[:, :2], 0.05)
 
-        return ball_density, cylinder_density
+        return cylinder_density
 
     def set_normal_vectors(self):
         def calculate_phi_angle_of_normals(vertex_normals):
@@ -225,7 +224,7 @@ class LasFileManager:
     def get_model_values(self, ground_classes=None):
         ind = self.filter_points()
         cylinder_density = self.set_frequency()
-        phi_angles_of_normal_vectors, theta_angles_of_normal_vectors, normal_vectors_x, normal_vectors_y, normal_vectors_z = self.set_angles_of_normal_vectors()
+        phi_angles_of_normal_vectors, theta_angles_of_normal_vectors, normal_vectors_x, normal_vectors_y, normal_vectors_z = self.set_normal_vectors()
         normalized_points = self.normalize_height(ground_classes=ground_classes)
         min_height, max_height, mean_height = self.set_min_max_mean_height(normalized_points)
         return [
