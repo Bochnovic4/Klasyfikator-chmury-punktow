@@ -194,7 +194,7 @@ class LasFileManager:
 
         return ball_density, cylinder_density
 
-    def set_angles_of_normal_vectors(self):
+    def set_normal_vectors(self):
         def calculate_phi_angle_of_normals(vertex_normals):
             z_axis = vertex_normals[:, 2]
             normal_vector_length = np.linalg.norm(vertex_normals)
@@ -220,28 +220,28 @@ class LasFileManager:
         phi_angles_of_normal_vectors = phi_angles
         theta_angles_of_normal_vectors = theta_angles
 
-        return phi_angles_of_normal_vectors, theta_angles_of_normal_vectors
+        return phi_angles_of_normal_vectors, theta_angles_of_normal_vectors, vertex_normals[:, 0], vertex_normals[:, 1], vertex_normals[:, 2]
 
-    def get_training_values(self, ground_classes=None):
+    def get_model_values(self, ground_classes=None):
         ind = self.filter_points()
-        ball_density, cylinder_density = self.set_frequency()
-        phi_angles_of_normal_vectors, theta_angles_of_normal_vectors = self.set_angles_of_normal_vectors()
+        cylinder_density = self.set_frequency()
+        phi_angles_of_normal_vectors, theta_angles_of_normal_vectors, normal_vectors_x, normal_vectors_y, normal_vectors_z = self.set_angles_of_normal_vectors()
         normalized_points = self.normalize_height(ground_classes=ground_classes)
         min_height, max_height, mean_height = self.set_min_max_mean_height(normalized_points)
-        return (
-            # normalized_points[:, 0],  # x
-            # normalized_points[:, 1],  # y
-            normalized_points[:, 2],  # z
-            # self.las_file.intensity[ind],
-            # self.las_file.number_of_returns[ind],
-            # ball_density,
+        return [
+            normalized_points[:, 2],
+            self.las_file.intensity[ind],
+            self.las_file.number_of_returns[ind],
+            self.las_file.return_number[ind],
             cylinder_density,
-            phi_angles_of_normal_vectors,
-            theta_angles_of_normal_vectors,
+            normal_vectors_x,
+            normal_vectors_y,
+            normal_vectors_z,
             min_height,
             max_height,
             mean_height
-        )
+        ]
+
 
     def csf(self, cloth_resolution=1):
         height_normalizer = height_normalization.PointCloudHeightNormalizer(self.points.copy(),
