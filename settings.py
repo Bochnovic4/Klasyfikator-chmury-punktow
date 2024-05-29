@@ -27,10 +27,12 @@ LABEL_COLORS = {
 }
 
 # Liczba rdzeni do traningu modelu
-N_JOBS = None
+N_JOBS = -1
 
 # Maksymalna glebokosc drzewa
-MAX_DEPTH = None
+MAX_DEPTH = 4
+
+N_ESTIMATORS = 50
 
 # kolumny do treningu modelu
 COLUMNS = ['z',
