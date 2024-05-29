@@ -227,19 +227,22 @@ class LasFileManager:
         phi_angles_of_normal_vectors, theta_angles_of_normal_vectors, normal_vectors_x, normal_vectors_y, normal_vectors_z = self.set_normal_vectors()
         normalized_points = self.normalize_height(ground_classes=ground_classes)
         min_height, max_height, mean_height = self.set_min_max_mean_height(normalized_points)
-        return [
-            normalized_points[:, 2],
-            self.las_file.intensity[ind],
-            self.las_file.number_of_returns[ind],
-            self.las_file.return_number[ind],
-            cylinder_density,
-            normal_vectors_x,
-            normal_vectors_y,
-            normal_vectors_z,
-            min_height,
-            max_height,
-            mean_height
-        ]
+
+        return {
+            "normalized_heights": normalized_points[:, 2],
+            "intensity": self.las_file.intensity[ind],
+            "number_of_returns": self.las_file.number_of_returns[ind],
+            "return_number": self.las_file.return_number[ind],
+            "cylinder_density": cylinder_density,
+            "phi_angles_of_normal_vectors": phi_angles_of_normal_vectors,
+            "theta_angles_of_normal_vectors": theta_angles_of_normal_vectors,
+            "normal_vectors_x": normal_vectors_x,
+            "normal_vectors_y": normal_vectors_y,
+            "normal_vectors_z": normal_vectors_z,
+            "min_height": min_height,
+            "max_height": max_height,
+            "mean_height": mean_height
+        }
 
 
     def csf(self, cloth_resolution=1):
