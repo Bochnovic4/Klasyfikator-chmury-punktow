@@ -30,14 +30,12 @@ class CloudPointClassifier:
 
     def train_model(self, las_file_manager):
         values_dict = las_file_manager.get_model_values(ground_classes=[2])
-        print("end")
 
         features = pd.DataFrame(values_dict)
         features = features.apply(pd.to_numeric, errors='coerce')
-        print("end")
+
         x_train, x_test, y_train, y_test = train_test_split(features, las_file_manager.classes, test_size=0.20,
                                                             random_state=42)
-        print("end")
 
         self.model.fit(x_train, y_train)
         self.is_enabled = True
