@@ -35,10 +35,14 @@ MAX_DEPTH = None
 # kolumny do treningu modelu
 COLUMNS = ['z',
            'intensity',
-           'ball_density',
+           'number_of_returns',
+           'return_number',
            'cylinder_density',
-           'phi_angles_of_normal_vectors',
-           'theta_angles_of_normal_vectors',
+           'phi',
+           'theta',
+           'normal_vectors_x',
+           'normal_vectors_y',
+           'normal_vectors_z',
            'min_height',
            'max_height',
            'mean_height']
