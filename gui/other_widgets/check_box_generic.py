@@ -1,11 +1,9 @@
-import customtkinter
-
 import customtkinter as ctk
 
 
 class CheckBoxGeneric(ctk.CTkCheckBox):
     def __init__(self, parent, text, func, option_value, value=0):
-        self.check_var = customtkinter.IntVar(value=value)
+        self.check_var = ctk.IntVar(value=value)
         super().__init__(master=parent, text=text, variable=self.check_var, onvalue=1, offvalue=0, command=self.check)
         self.func = func
         self.option_value = option_value

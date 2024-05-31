@@ -1,4 +1,3 @@
-import open3d as o3d
 import customtkinter as ctk
 
 from gui.frames.text_frame import TextFrame

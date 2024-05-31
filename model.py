@@ -14,22 +14,54 @@ class CloudPointClassifier:
 
     def classify(self, las_file_manager):
         (z,
-         cylinder_density, phi, theta,
-         min_height, max_height, mean_height) = las_file_manager.get_model_values()
+         intensity,
+         number_of_returns,
+         return_number,
+         cylinder_density,
+         normal_vectors_x,
+         normal_vectors_y,
+         normal_vectors_z,
+         min_height,
+         max_height,
+         mean_height) = las_file_manager.get_model_values()
 
         features = np.vstack((z,
-                              cylinder_density, phi, theta,
-                              min_height, max_height, mean_height)).T
+                              intensity,
+                              number_of_returns,
+                              return_number,
+                              cylinder_density,
+                              normal_vectors_x,
+                              normal_vectors_y,
+                              normal_vectors_z,
+                              min_height,
+                              max_height,
+                              mean_height)).T
         features = pd.DataFrame(features, columns=COLUMNS)
         las_file_manager.classes = self.model.predict(features)
 
     def train_model(self, las_file_manager):
-        (z, intensity, ball_density,
-         cylinder_density, phi, theta,
-         min_height, max_height, mean_height) = las_file_manager.get_model_values(ground_classes=[2])
-        features = np.vstack((z, intensity, ball_density,
-                              cylinder_density, phi, theta,
-                              min_height, max_height, mean_height)).T
+        (z,
+         intensity,
+         number_of_returns,
+         return_number,
+         cylinder_density,
+         normal_vectors_x,
+         normal_vectors_y,
+         normal_vectors_z,
+         min_height,
+         max_height,
+         mean_height) = las_file_manager.get_model_values(ground_classes=[2])
+        features = np.vstack((z,
+                              intensity,
+                              number_of_returns,
+                              return_number,
+                              cylinder_density,
+                              normal_vectors_x,
+                              normal_vectors_y,
+                              normal_vectors_z,
+                              min_height,
+                              max_height,
+                              mean_height)).T
         features = pd.DataFrame(features, columns=COLUMNS)
         features = features.apply(pd.to_numeric, errors='coerce')
         x_train, x_test, y_train, y_test = train_test_split(features, las_file_manager.classes, test_size=0.2,
